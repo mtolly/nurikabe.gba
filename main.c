@@ -2,7 +2,6 @@
 #include <tonc.h>
 
 int main() {
-  REG_DISPCNT = DCNT_MODE3 | DCNT_BG2;
 
 #define NUR_ROWS 10
 #define NUR_COLS 13
@@ -22,16 +21,16 @@ int main() {
   int cursor_r = 0;
   int cursor_c = 0;
 
+  
+
   // Load palette
   pal_bg_mem[0] = CLR_BLACK;
-  pal_bg_mem[1] = CLR_WHITE;
-  pal_bg_mem[2] = CLR_BLUE;
-  pal_bg_mem[3] = RGB15(8, 8, 8);
-  pal_bg_mem[4] = CLR_RED;
+pal_bg_mem[1] = CLR_WHITE;
+pal_bg_mem[2] = CLR_BLUE;
+pal_bg_mem[3] = RGB15(8,8,8);
+pal_bg_mem[4] = CLR_RED;
 
   // Load tiles into CBB 0
-  
-  // outside the puzzle
   tile_mem[0][0].data[0] = 0x22222222;
 tile_mem[0][0].data[1] = 0x22222222;
 tile_mem[0][0].data[2] = 0x22222222;
@@ -40,7 +39,6 @@ tile_mem[0][0].data[4] = 0x22222222;
 tile_mem[0][0].data[5] = 0x22222222;
 tile_mem[0][0].data[6] = 0x22222222;
 tile_mem[0][0].data[7] = 0x22222222;
-  // white space
   tile_mem[0][1].data[0] = 0x00000000;
 tile_mem[0][1].data[1] = 0x11111110;
 tile_mem[0][1].data[2] = 0x11111110;
@@ -49,7 +47,6 @@ tile_mem[0][1].data[4] = 0x11111110;
 tile_mem[0][1].data[5] = 0x11111110;
 tile_mem[0][1].data[6] = 0x11111110;
 tile_mem[0][1].data[7] = 0x11111110;
-  // black space
   tile_mem[0][2].data[0] = 0x00000000;
 tile_mem[0][2].data[1] = 0x33333330;
 tile_mem[0][2].data[2] = 0x33333330;
@@ -58,7 +55,6 @@ tile_mem[0][2].data[4] = 0x33333330;
 tile_mem[0][2].data[5] = 0x33333330;
 tile_mem[0][2].data[6] = 0x33333330;
 tile_mem[0][2].data[7] = 0x33333330;
-  // bottom edge of puzzle
   tile_mem[0][3].data[0] = 0x00000000;
 tile_mem[0][3].data[1] = 0x22222222;
 tile_mem[0][3].data[2] = 0x22222222;
@@ -67,7 +63,6 @@ tile_mem[0][3].data[4] = 0x22222222;
 tile_mem[0][3].data[5] = 0x22222222;
 tile_mem[0][3].data[6] = 0x22222222;
 tile_mem[0][3].data[7] = 0x22222222;
-  // right edge of puzzle
   tile_mem[0][4].data[0] = 0x22222220;
 tile_mem[0][4].data[1] = 0x22222220;
 tile_mem[0][4].data[2] = 0x22222220;
@@ -76,7 +71,6 @@ tile_mem[0][4].data[4] = 0x22222220;
 tile_mem[0][4].data[5] = 0x22222220;
 tile_mem[0][4].data[6] = 0x22222220;
 tile_mem[0][4].data[7] = 0x22222220;
-  // bottom-right corner of puzzle
   tile_mem[0][5].data[0] = 0x22222220;
 tile_mem[0][5].data[1] = 0x22222222;
 tile_mem[0][5].data[2] = 0x22222222;
@@ -85,7 +79,6 @@ tile_mem[0][5].data[4] = 0x22222222;
 tile_mem[0][5].data[5] = 0x22222222;
 tile_mem[0][5].data[6] = 0x22222222;
 tile_mem[0][5].data[7] = 0x22222222;
-  // white space with cursor
   tile_mem[0][6].data[0] = 0x00000000;
 tile_mem[0][6].data[1] = 0x44111440;
 tile_mem[0][6].data[2] = 0x41111140;
@@ -94,7 +87,6 @@ tile_mem[0][6].data[4] = 0x11111110;
 tile_mem[0][6].data[5] = 0x11111110;
 tile_mem[0][6].data[6] = 0x41111140;
 tile_mem[0][6].data[7] = 0x44111440;
-  // black space with cursor
   tile_mem[0][7].data[0] = 0x00000000;
 tile_mem[0][7].data[1] = 0x44333440;
 tile_mem[0][7].data[2] = 0x43333340;
@@ -110,8 +102,7 @@ tile_mem[0][7].data[7] = 0x44333440;
   for (int r = 0; r < NUR_ROWS; r++) se_mem[30][r * 32 + NUR_COLS] = 4;
   se_mem[30][NUR_ROWS * 32 + NUR_COLS] = 5;
 
-  // set up BG0 for a 4bpp 64x32t map, using
-  //   using charblock 0 and screenblock 31
+  // set up BG0 for a 4bpp 64x32t map, using charblock 0 and screenblock 30
   REG_BG0CNT = BG_CBB(0) | BG_SBB(30) | BG_4BPP | BG_REG_64x32;
   REG_DISPCNT = DCNT_MODE0 | DCNT_BG0;
 
