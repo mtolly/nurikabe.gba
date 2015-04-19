@@ -33,26 +33,8 @@ int main() {
   <%= load_tile 0, 3, $bottom_edge %>
   <%= load_tile 0, 4, $right_edge %>
   <%= load_tile 0, 5, $bottom_right_corner %>
-  <%= load_tile 0, 6, %w{
-    ########
-    #RR...RR
-    #R.....R
-    #.......
-    #.......
-    #.......
-    #R.....R
-    #RR...RR
-  } %>
-  <%= load_tile 0, 7, %w{
-    ########
-    #RRgggRR
-    #RgggggR
-    #ggggggg
-    #ggggggg
-    #ggggggg
-    #RgggggR
-    #RRgggRR
-  } %>
+  <%= load_tile 0, 6, layer($white_tile, $cursor) %>
+  <%= load_tile 0, 7, layer($black_tile, $cursor) %>
 
   // Load map into SBB 30
   for (int i = 0; i < 32 * 32; i++) se_mem[30][i] = 0;
