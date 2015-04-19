@@ -480,6 +480,7 @@ tile_mem[0][63].data[7] = 0x55333553;
   irq_add(II_VBLANK, NULL);
 
   int key_repeat = 0;
+  bool clearing = false;
   while (1) {
     VBlankIntrWait();
     key_poll();
@@ -502,32 +503,71 @@ tile_mem[0][63].data[7] = 0x55333553;
     if (virtual_right && cursor_c < NUR_COLS - 1) { cursor_c++; moved_cursor = true; }
     if (virtual_up    && cursor_r > 0           ) { cursor_r--; moved_cursor = true; }
     if (virtual_down  && cursor_r < NUR_ROWS - 1) { cursor_r++; moved_cursor = true; }
-    if (key_hit(1 << KI_A) || (key_is_down(1 << KI_A) && moved_cursor)) {
+
+    if (key_hit(1 << KI_A)) {
       switch (puzzle[cursor_r][cursor_c]) {
         case 0:
         case -1:
           puzzle[cursor_r][cursor_c] = -2;
           se_mem[30][cursor_r * 32 + cursor_c] = 27;
+          clearing = false;
           break;
         case -2:
           puzzle[cursor_r][cursor_c] = 0;
           se_mem[30][cursor_r * 32 + cursor_c] = 0;
+          clearing = true;
           break;
       }
     }
-    if (key_hit(1 << KI_B) || (key_is_down(1 << KI_B) && moved_cursor)) {
+    else if (key_is_down(1 << KI_A) && moved_cursor) {
+      switch (puzzle[cursor_r][cursor_c]) {
+        case 0:
+        case -1:
+        case -2:
+          if (clearing) {
+            puzzle[cursor_r][cursor_c] = 0;
+            se_mem[30][cursor_r * 32 + cursor_c] = 0;
+          }
+          else {
+            puzzle[cursor_r][cursor_c] = -2;
+            se_mem[30][cursor_r * 32 + cursor_c] = 27;
+          }
+          break;
+      }
+    }
+
+    if (key_hit(1 << KI_B)) {
       switch (puzzle[cursor_r][cursor_c]) {
         case 0:
         case -2:
           puzzle[cursor_r][cursor_c] = -1;
           se_mem[30][cursor_r * 32 + cursor_c] = 26;
+          clearing = false;
           break;
         case -1:
           puzzle[cursor_r][cursor_c] = 0;
           se_mem[30][cursor_r * 32 + cursor_c] = 0;
+          clearing = true;
           break;
       }
     }
+    else if (key_is_down(1 << KI_B) && moved_cursor) {
+      switch (puzzle[cursor_r][cursor_c]) {
+        case 0:
+        case -1:
+        case -2:
+          if (clearing) {
+            puzzle[cursor_r][cursor_c] = 0;
+            se_mem[30][cursor_r * 32 + cursor_c] = 0;
+          }
+          else {
+            puzzle[cursor_r][cursor_c] = -1;
+            se_mem[30][cursor_r * 32 + cursor_c] = 26;
+          }
+          break;
+      }
+    }
+
     se_mem[30][cursor_r * 32 + cursor_c] += 32; // readd the cursor
   }
 }
