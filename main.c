@@ -5,7 +5,7 @@ int main() {
   REG_DISPCNT = DCNT_MODE3 | DCNT_BG2;
 
 #define NUR_ROWS 10
-#define NUR_COLS 10
+#define NUR_COLS 13
 
   int puzzle[NUR_ROWS][NUR_COLS];
   //  0: blank
