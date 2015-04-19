@@ -17,6 +17,8 @@ int main() {
     }
   }
   puzzle[4][3] = -1;
+  puzzle[6][3] = 5;
+  puzzle[7][1] = 13;
 
   int cursor_r = 0;
   int cursor_c = 0;
@@ -84,6 +86,32 @@ int main() {
     if (key_hit(1 << KI_RIGHT) && cursor_c < NUR_COLS - 1) cursor_c++;
     if (key_hit(1 << KI_UP) && cursor_r > 0) cursor_r--;
     if (key_hit(1 << KI_DOWN) && cursor_r < NUR_ROWS - 1) cursor_r++;
+    if (key_hit(1 << KI_A)) {
+      switch (puzzle[cursor_r][cursor_c]) {
+        case 0:
+        case -1:
+          puzzle[cursor_r][cursor_c] = -2;
+          se_mem[30][cursor_r * 32 + cursor_c] = 27;
+          break;
+        case -2:
+          puzzle[cursor_r][cursor_c] = 0;
+          se_mem[30][cursor_r * 32 + cursor_c] = 0;
+          break;
+      }
+    }
+    if (key_hit(1 << KI_B)) {
+      switch (puzzle[cursor_r][cursor_c]) {
+        case 0:
+        case -2:
+          puzzle[cursor_r][cursor_c] = -1;
+          se_mem[30][cursor_r * 32 + cursor_c] = 26;
+          break;
+        case -1:
+          puzzle[cursor_r][cursor_c] = 0;
+          se_mem[30][cursor_r * 32 + cursor_c] = 0;
+          break;
+      }
+    }
     se_mem[30][cursor_r * 32 + cursor_c] += 32;
   }
 }
