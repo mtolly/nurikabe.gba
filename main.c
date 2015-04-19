@@ -479,18 +479,30 @@ tile_mem[0][63].data[7] = 0x55333553;
   irq_init(NULL);
   irq_add(II_VBLANK, NULL);
 
+  int key_repeat = 0;
   while (1) {
     VBlankIntrWait();
     key_poll();
-    se_mem[30][cursor_r * 32 + cursor_c] -= 32;
-    if (key_hit(1 << KI_LEFT) && cursor_c > 0) cursor_c--;
-    if (key_hit(1 << KI_RIGHT) && cursor_c < NUR_COLS - 1) cursor_c++;
-    if (key_hit(1 << KI_UP) && cursor_r > 0) cursor_r--;
-    if (key_hit(1 << KI_DOWN) && cursor_r < NUR_ROWS - 1) cursor_r++;
-    if ( key_hit(1 << KI_A)
-      || ( key_is_down(1 << KI_A)
-        && key_hit(1 << KI_LEFT | 1 << KI_RIGHT | 1 << KI_UP | 1 << KI_DOWN)
-      )) {
+    se_mem[30][cursor_r * 32 + cursor_c] -= 32; // remove the cursor
+    if (key_hit(1 << KI_LEFT | 1 << KI_RIGHT | 1 << KI_UP | 1 << KI_DOWN)) {
+      key_repeat = 0; // reset the key repeat timer
+    }
+#define START_REPEAT 20
+#define REPEAT_SPEED 2
+    if (key_is_down(1 << KI_LEFT | 1 << KI_RIGHT | 1 << KI_UP | 1 << KI_DOWN)) {
+      if (key_repeat < START_REPEAT) key_repeat++;
+      else key_repeat = START_REPEAT - REPEAT_SPEED;
+    }
+    bool virtual_left  = key_hit(1 << KI_LEFT ) || (key_is_down(1 << KI_LEFT ) && key_repeat == START_REPEAT);
+    bool virtual_right = key_hit(1 << KI_RIGHT) || (key_is_down(1 << KI_RIGHT) && key_repeat == START_REPEAT);
+    bool virtual_up    = key_hit(1 << KI_UP   ) || (key_is_down(1 << KI_UP   ) && key_repeat == START_REPEAT);
+    bool virtual_down  = key_hit(1 << KI_DOWN ) || (key_is_down(1 << KI_DOWN ) && key_repeat == START_REPEAT);
+    bool moved_cursor = false;
+    if (virtual_left  && cursor_c > 0           ) { cursor_c--; moved_cursor = true; }
+    if (virtual_right && cursor_c < NUR_COLS - 1) { cursor_c++; moved_cursor = true; }
+    if (virtual_up    && cursor_r > 0           ) { cursor_r--; moved_cursor = true; }
+    if (virtual_down  && cursor_r < NUR_ROWS - 1) { cursor_r++; moved_cursor = true; }
+    if (key_hit(1 << KI_A) || (key_is_down(1 << KI_A) && moved_cursor)) {
       switch (puzzle[cursor_r][cursor_c]) {
         case 0:
         case -1:
@@ -503,10 +515,7 @@ tile_mem[0][63].data[7] = 0x55333553;
           break;
       }
     }
-    if ( key_hit(1 << KI_B)
-      || ( key_is_down(1 << KI_B)
-        && key_hit(1 << KI_LEFT | 1 << KI_RIGHT | 1 << KI_UP | 1 << KI_DOWN)
-      )) {
+    if (key_hit(1 << KI_B) || (key_is_down(1 << KI_B) && moved_cursor)) {
       switch (puzzle[cursor_r][cursor_c]) {
         case 0:
         case -2:
@@ -519,6 +528,6 @@ tile_mem[0][63].data[7] = 0x55333553;
           break;
       }
     }
-    se_mem[30][cursor_r * 32 + cursor_c] += 32;
+    se_mem[30][cursor_r * 32 + cursor_c] += 32; // readd the cursor
   }
 }
