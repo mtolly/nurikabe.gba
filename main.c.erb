@@ -27,20 +27,47 @@ int main() {
   <%= load_pal_bg() %>
 
   // Load tiles into CBB 0
-  <%= load_tile 0, 0, $outside %>
-  <%= load_tile 0, 1, $white_tile %>
-  <%= load_tile 0, 2, $black_tile %>
-  <%= load_tile 0, 3, $bottom_edge %>
-  <%= load_tile 0, 4, $right_edge %>
-  <%= load_tile 0, 5, $bottom_right_corner %>
-  <%= load_tile 0, 6, layer($white_tile, $cursor) %>
-  <%= load_tile 0, 7, layer($black_tile, $cursor) %>
+  <%
+  def load2(tile_index, tile)
+    load_tile(0, tile_index, tile) + load_tile(0, 32 + tile_index, layer(tile, $cursor))
+  end
+  %>
+  <%= load2 0, $white_tile %>
+  <% (1..19).each do |i| %>
+    <%= load2 i, $num_tiles[i] %>
+  <% end %>
+  <%= load2 26, $black_tile %>
+  <%= load2 27, $dot_tile %>
+  <%= load2 28, $outside %>
+  <%= load2 29, $bottom_edge %>
+  <%= load2 30, $right_edge %>
+  <%= load2 31, $bottom_right_corner %>
 
   // Load map into SBB 30
-  for (int i = 0; i < 32 * 32; i++) se_mem[30][i] = 0;
-  for (int c = 0; c < NUR_COLS; c++) se_mem[30][NUR_ROWS * 32 + c] = 3;
-  for (int r = 0; r < NUR_ROWS; r++) se_mem[30][r * 32 + NUR_COLS] = 4;
-  se_mem[30][NUR_ROWS * 32 + NUR_COLS] = 5;
+  for (int i = 0; i < 32 * 32; i++) se_mem[30][i] = 28;
+  for (int c = 0; c < NUR_COLS; c++) se_mem[30][NUR_ROWS * 32 + c] = 29;
+  for (int r = 0; r < NUR_ROWS; r++) se_mem[30][r * 32 + NUR_COLS] = 30;
+  se_mem[30][NUR_ROWS * 32 + NUR_COLS] = 31;
+
+  for (int r = 0; r < NUR_ROWS; r++) {
+    for (int c = 0; c < NUR_COLS; c++) {
+      switch (puzzle[r][c]) {
+        case 0:
+          se_mem[30][r * 32 + c] = 0;
+          break;
+        case -1:
+          se_mem[30][r * 32 + c] = 26;
+          break;
+        case -2:
+          se_mem[30][r * 32 + c] = 27;
+          break;
+        default:
+          se_mem[30][r * 32 + c] = puzzle[r][c];
+          break;
+      }
+    }
+  }
+  se_mem[30][cursor_r * 32 + cursor_c] += 32;
 
   // set up BG0 for a 4bpp 64x32t map, using charblock 0 and screenblock 30
   REG_BG0CNT = BG_CBB(0) | BG_SBB(30) | BG_4BPP | BG_REG_64x32;
@@ -52,17 +79,11 @@ int main() {
   while (1) {
     VBlankIntrWait();
     key_poll();
+    se_mem[30][cursor_r * 32 + cursor_c] -= 32;
     if (key_hit(1 << KI_LEFT) && cursor_c > 0) cursor_c--;
     if (key_hit(1 << KI_RIGHT) && cursor_c < NUR_COLS - 1) cursor_c++;
     if (key_hit(1 << KI_UP) && cursor_r > 0) cursor_r--;
     if (key_hit(1 << KI_DOWN) && cursor_r < NUR_ROWS - 1) cursor_r++;
-    for (int r = 0; r < NUR_ROWS; r++) {
-      for (int c = 0; c < NUR_COLS; c++) {
-        se_mem[30][r * 32 + c] =
-          cursor_r == r && cursor_c == c
-            ? (puzzle[r][c] ? 7 : 6)
-            : (puzzle[r][c] ? 2 : 1);
-      }
-    }
+    se_mem[30][cursor_r * 32 + cursor_c] += 32;
   }
 }
