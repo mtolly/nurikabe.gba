@@ -487,7 +487,10 @@ tile_mem[0][63].data[7] = 0x55333553;
     if (key_hit(1 << KI_RIGHT) && cursor_c < NUR_COLS - 1) cursor_c++;
     if (key_hit(1 << KI_UP) && cursor_r > 0) cursor_r--;
     if (key_hit(1 << KI_DOWN) && cursor_r < NUR_ROWS - 1) cursor_r++;
-    if (key_hit(1 << KI_A)) {
+    if ( key_hit(1 << KI_A)
+      || ( key_is_down(1 << KI_A)
+        && key_hit(1 << KI_LEFT | 1 << KI_RIGHT | 1 << KI_UP | 1 << KI_DOWN)
+      )) {
       switch (puzzle[cursor_r][cursor_c]) {
         case 0:
         case -1:
@@ -500,7 +503,10 @@ tile_mem[0][63].data[7] = 0x55333553;
           break;
       }
     }
-    if (key_hit(1 << KI_B)) {
+    if ( key_hit(1 << KI_B)
+      || ( key_is_down(1 << KI_B)
+        && key_hit(1 << KI_LEFT | 1 << KI_RIGHT | 1 << KI_UP | 1 << KI_DOWN)
+      )) {
       switch (puzzle[cursor_r][cursor_c]) {
         case 0:
         case -2:
