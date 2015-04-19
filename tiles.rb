@@ -2,7 +2,7 @@ $palette = %w{
   ? CLR_MAG
   # CLR_BLACK
   . CLR_WHITE
-  B CLR_BLUE
+  B RGB15(7,10,20)
   g RGB15(8,8,8)
   R CLR_RED
 }.each_slice(2).to_a
