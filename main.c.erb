@@ -1,6 +1,17 @@
 #include <string.h>
 #include <tonc.h>
 
+#define WHITE 0
+#define BLACK 1
+#define DOT 2
+#define OUTSIDE 3
+#define BOTTOM_EDGE 4
+#define RIGHT_EDGE 5
+#define BOTTOM_RIGHT_CORNER 6
+#define NUMBER(n) ((n) + 6)
+
+#define CURSOR 32
+
 int main() {
 
   <%
@@ -22,14 +33,10 @@ int main() {
 #define NUR_COLS <%= puzzle[0].length %>
 
   int puzzle[NUR_ROWS][NUR_COLS];
-  //  0: blank
-  // -1: black
-  // -2: dot
-  // positive: numbered
   <%=
   puzzle.each_with_index.map do |row, r|
     row.split('').each_with_index.map do |square, c|
-      "puzzle[#{r}][#{c}] = #{square == '-' ? 0 : square};"
+      "puzzle[#{r}][#{c}] = #{square == '-' ? 'WHITE' : 'NUMBER(' + square + ')'};"
     end.join("\n")
   end.join("\n")
   %>
@@ -43,47 +50,37 @@ int main() {
   <%= load_pal_bg() %>
 
   // Load tiles into CBB 0
-  <%
-  def load2(tile_index, tile)
-    load_tile(0, tile_index, tile) + load_tile(0, 32 + tile_index, layer(tile, $cursor))
-  end
-  %>
-  <%= load2 0, $white_tile %>
+  <%= load_tile 0, 'WHITE', $white_tile %>
+  <%= load_tile 0, 'BLACK', $black_tile %>
+  <%= load_tile 0, 'DOT', $dot_tile %>
   <% (1..19).each do |i| %>
-    <%= load2 i, $num_tiles[i] %>
+    <%= load_tile 0, "NUMBER(#{i})", $num_tiles[i] %>
   <% end %>
-  <%= load2 26, $black_tile %>
-  <%= load2 27, $dot_tile %>
-  <%= load2 28, $outside %>
-  <%= load2 29, $bottom_edge %>
-  <%= load2 30, $right_edge %>
-  <%= load2 31, $bottom_right_corner %>
+
+  <%= load_tile 0, 'WHITE + CURSOR', layer($white_tile, $cursor) %>
+  <%= load_tile 0, 'BLACK + CURSOR', layer($black_tile, $cursor) %>
+  <%= load_tile 0, 'DOT + CURSOR', layer($dot_tile, $cursor) %>
+  <% (1..19).each do |i| %>
+    <%= load_tile 0, "NUMBER(#{i}) + CURSOR", layer($num_tiles[i], $cursor) %>
+  <% end %>
+
+  <%= load_tile 0, 'OUTSIDE', $outside %>
+  <%= load_tile 0, 'BOTTOM_EDGE', $bottom_edge %>
+  <%= load_tile 0, 'RIGHT_EDGE', $right_edge %>
+  <%= load_tile 0, 'BOTTOM_RIGHT_CORNER', $bottom_right_corner %>
 
   // Load map into SBB 30
-  for (int i = 0; i < 32 * 32; i++) se_mem[30][i] = 28;
-  for (int c = 0; c < NUR_COLS; c++) se_mem[30][NUR_ROWS * 32 + c] = 29;
-  for (int r = 0; r < NUR_ROWS; r++) se_mem[30][r * 32 + NUR_COLS] = 30;
-  se_mem[30][NUR_ROWS * 32 + NUR_COLS] = 31;
+  for (int i = 0; i < 32 * 32; i++) se_mem[30][i] = OUTSIDE;
+  for (int c = 0; c < NUR_COLS; c++) se_mem[30][NUR_ROWS * 32 + c] = BOTTOM_EDGE;
+  for (int r = 0; r < NUR_ROWS; r++) se_mem[30][r * 32 + NUR_COLS] = RIGHT_EDGE;
+  se_mem[30][NUR_ROWS * 32 + NUR_COLS] = BOTTOM_RIGHT_CORNER;
 
   for (int r = 0; r < NUR_ROWS; r++) {
     for (int c = 0; c < NUR_COLS; c++) {
-      switch (puzzle[r][c]) {
-        case 0:
-          se_mem[30][r * 32 + c] = 0;
-          break;
-        case -1:
-          se_mem[30][r * 32 + c] = 26;
-          break;
-        case -2:
-          se_mem[30][r * 32 + c] = 27;
-          break;
-        default:
-          se_mem[30][r * 32 + c] = puzzle[r][c];
-          break;
-      }
+      se_mem[30][r * 32 + c] = puzzle[r][c];
     }
   }
-  se_mem[30][cursor_r * 32 + cursor_c] += 32;
+  se_mem[30][cursor_r * 32 + cursor_c] += CURSOR;
 
   // set up BG0 for a 4bpp 64x32t map, using charblock 0 and screenblock 30
   REG_BG0CNT = BG_CBB(0) | BG_SBB(30) | BG_4BPP | BG_REG_64x32;
@@ -97,7 +94,7 @@ int main() {
   while (1) {
     VBlankIntrWait();
     key_poll();
-    se_mem[30][cursor_r * 32 + cursor_c] -= 32; // remove the cursor
+    se_mem[30][cursor_r * 32 + cursor_c] -= CURSOR; // remove the cursor
     if (key_hit(1 << KI_LEFT | 1 << KI_RIGHT | 1 << KI_UP | 1 << KI_DOWN)) {
       key_repeat = 0; // reset the key repeat timer
     }
@@ -119,31 +116,30 @@ int main() {
 
     if (key_hit(1 << KI_A)) {
       switch (puzzle[cursor_r][cursor_c]) {
-        case 0:
-        case -1:
-          puzzle[cursor_r][cursor_c] = -2;
-          se_mem[30][cursor_r * 32 + cursor_c] = 27;
+        case WHITE:
+        case BLACK:
+          puzzle[cursor_r][cursor_c] = se_mem[30][cursor_r * 32 + cursor_c] = DOT;
           clearing = false;
           break;
-        case -2:
-          puzzle[cursor_r][cursor_c] = 0;
-          se_mem[30][cursor_r * 32 + cursor_c] = 0;
+        case DOT:
+          puzzle[cursor_r][cursor_c] = se_mem[30][cursor_r * 32 + cursor_c] = WHITE;
           clearing = true;
+          break;
+        default:
+          clearing = false;
           break;
       }
     }
     else if (key_is_down(1 << KI_A) && moved_cursor) {
       switch (puzzle[cursor_r][cursor_c]) {
-        case 0:
-        case -1:
-        case -2:
+        case WHITE:
+        case BLACK:
+        case DOT:
           if (clearing) {
-            puzzle[cursor_r][cursor_c] = 0;
-            se_mem[30][cursor_r * 32 + cursor_c] = 0;
+            puzzle[cursor_r][cursor_c] = se_mem[30][cursor_r * 32 + cursor_c] = WHITE;
           }
           else {
-            puzzle[cursor_r][cursor_c] = -2;
-            se_mem[30][cursor_r * 32 + cursor_c] = 27;
+            puzzle[cursor_r][cursor_c] = se_mem[30][cursor_r * 32 + cursor_c] = DOT;
           }
           break;
       }
@@ -151,36 +147,35 @@ int main() {
 
     if (key_hit(1 << KI_B)) {
       switch (puzzle[cursor_r][cursor_c]) {
-        case 0:
-        case -2:
-          puzzle[cursor_r][cursor_c] = -1;
-          se_mem[30][cursor_r * 32 + cursor_c] = 26;
+        case WHITE:
+        case DOT:
+          puzzle[cursor_r][cursor_c] = se_mem[30][cursor_r * 32 + cursor_c] = BLACK;
           clearing = false;
           break;
-        case -1:
-          puzzle[cursor_r][cursor_c] = 0;
-          se_mem[30][cursor_r * 32 + cursor_c] = 0;
+        case BLACK:
+          puzzle[cursor_r][cursor_c] = se_mem[30][cursor_r * 32 + cursor_c] = WHITE;
           clearing = true;
+          break;
+        default:
+          clearing = false;
           break;
       }
     }
     else if (key_is_down(1 << KI_B) && moved_cursor) {
       switch (puzzle[cursor_r][cursor_c]) {
-        case 0:
-        case -1:
-        case -2:
+        case WHITE:
+        case BLACK:
+        case DOT:
           if (clearing) {
-            puzzle[cursor_r][cursor_c] = 0;
-            se_mem[30][cursor_r * 32 + cursor_c] = 0;
+            puzzle[cursor_r][cursor_c] = se_mem[30][cursor_r * 32 + cursor_c] = WHITE;
           }
           else {
-            puzzle[cursor_r][cursor_c] = -1;
-            se_mem[30][cursor_r * 32 + cursor_c] = 26;
+            puzzle[cursor_r][cursor_c] = se_mem[30][cursor_r * 32 + cursor_c] = BLACK;
           }
           break;
       }
     }
 
-    se_mem[30][cursor_r * 32 + cursor_c] += 32; // readd the cursor
+    se_mem[30][cursor_r * 32 + cursor_c] += CURSOR; // readd the cursor
   }
 }
