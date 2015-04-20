@@ -2,7 +2,7 @@ PATH := $(DEVKITARM)/bin:$(PATH)
 
 # --- Project details -------------------------------------------------
 
-PROJ    := main
+PROJ    := nurikabe
 TARGET  := $(PROJ)
 
 OBJS    := $(PROJ).o
