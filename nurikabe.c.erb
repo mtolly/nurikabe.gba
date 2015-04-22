@@ -13,11 +13,12 @@
 #define OUTSIDE 8
 #define NUMBER(n) ((n) + 8)
 
-#define SET_TILE(cb, r, c, tile) (\
-  (se_mem[cb][(r) * 2 * 32 +      (c) * 2    ] = (tile) * 4    ), \
-  (se_mem[cb][(r) * 2 * 32 +      (c) * 2 + 1] = (tile) * 4 + 1), \
-  (se_mem[cb][(r) * 2 * 32 + 32 + (c) * 2    ] = (tile) * 4 + 2), \
-  (se_mem[cb][(r) * 2 * 32 + 32 + (c) * 2 + 1] = (tile) * 4 + 3)) \
+void set_tile(int charblock, int r, int c, int tile) {
+  se_mem[charblock][r * 2 * 32 +      c * 2    ] = tile * 4    ;
+  se_mem[charblock][r * 2 * 32 +      c * 2 + 1] = tile * 4 + 1;
+  se_mem[charblock][r * 2 * 32 + 32 + c * 2    ] = tile * 4 + 2;
+  se_mem[charblock][r * 2 * 32 + 32 + c * 2 + 1] = tile * 4 + 3;
+}
 
 <%
 puzzle = %w{
@@ -98,25 +99,25 @@ int main() {
   // Load map into SBB 30
   for (int r = 0; r < 32; r++) {
     for (int c = 0; c < 32; c++) {
-      SET_TILE(30, r, c, OUTSIDE);
+      set_tile(30, r, c, OUTSIDE);
     }
   }
-  for (int c = 0; c < NUR_COLS; c++) SET_TILE(30, NUR_ROWS, c, BOTTOM_EDGE);
-  for (int r = 0; r < NUR_ROWS; r++) SET_TILE(30, r, NUR_COLS, RIGHT_EDGE);
-  SET_TILE(30, NUR_ROWS, NUR_COLS, BOTTOM_RIGHT_CORNER);
+  for (int c = 0; c < NUR_COLS; c++) set_tile(30, NUR_ROWS, c, BOTTOM_EDGE);
+  for (int r = 0; r < NUR_ROWS; r++) set_tile(30, r, NUR_COLS, RIGHT_EDGE);
+  set_tile(30, NUR_ROWS, NUR_COLS, BOTTOM_RIGHT_CORNER);
   for (int r = 0; r < NUR_ROWS; r++) {
     for (int c = 0; c < NUR_COLS; c++) {
-      SET_TILE(30, r, c, puzzle[r][c]);
+      set_tile(30, r, c, puzzle[r][c]);
     }
   }
 
   // Load map into SBB 31
   for (int r = 0; r < 32; r++) {
     for (int c = 0; c < 32; c++) {
-      SET_TILE(31, r, c, TRANSPARENT);
+      set_tile(31, r, c, TRANSPARENT);
     }
   }
-  SET_TILE(31, cursor_r, cursor_c, CURSOR);
+  set_tile(31, cursor_r, cursor_c, CURSOR);
 
   // set up BG0 for a 4bpp 64x32t map, using charblock 0 and screenblock 31 (cursor)
   REG_BG0CNT = BG_CBB(0) | BG_SBB(31) | BG_4BPP | BG_REG_64x32;
@@ -132,7 +133,7 @@ int main() {
   while (1) {
     VBlankIntrWait();
     key_poll();
-    SET_TILE(31, cursor_r, cursor_c, TRANSPARENT); // remove the cursor
+    set_tile(31, cursor_r, cursor_c, TRANSPARENT); // remove the cursor
     if (key_hit(1 << KI_LEFT | 1 << KI_RIGHT | 1 << KI_UP | 1 << KI_DOWN)) {
       key_repeat = 0; // reset the key repeat timer
     }
@@ -157,12 +158,12 @@ int main() {
         case WHITE:
         case BLACK:
           puzzle[cursor_r][cursor_c] = DOT;
-          SET_TILE(30, cursor_r, cursor_c, DOT);
+          set_tile(30, cursor_r, cursor_c, DOT);
           clearing = false;
           break;
         case DOT:
           puzzle[cursor_r][cursor_c] = WHITE;
-          SET_TILE(30, cursor_r, cursor_c, WHITE);
+          set_tile(30, cursor_r, cursor_c, WHITE);
           clearing = true;
           break;
         default:
@@ -177,11 +178,11 @@ int main() {
         case DOT:
           if (clearing) {
             puzzle[cursor_r][cursor_c] = WHITE;
-            SET_TILE(30, cursor_r, cursor_c, WHITE);
+            set_tile(30, cursor_r, cursor_c, WHITE);
           }
           else {
             puzzle[cursor_r][cursor_c] = DOT;
-            SET_TILE(30, cursor_r, cursor_c, DOT);
+            set_tile(30, cursor_r, cursor_c, DOT);
           }
           break;
       }
@@ -192,12 +193,12 @@ int main() {
         case WHITE:
         case DOT:
           puzzle[cursor_r][cursor_c] = BLACK;
-          SET_TILE(30, cursor_r, cursor_c, BLACK);
+          set_tile(30, cursor_r, cursor_c, BLACK);
           clearing = false;
           break;
         case BLACK:
           puzzle[cursor_r][cursor_c] = WHITE;
-          SET_TILE(30, cursor_r, cursor_c, WHITE);
+          set_tile(30, cursor_r, cursor_c, WHITE);
           clearing = true;
           break;
         default:
@@ -212,16 +213,16 @@ int main() {
         case DOT:
           if (clearing) {
             puzzle[cursor_r][cursor_c] = WHITE;
-            SET_TILE(30, cursor_r, cursor_c, WHITE);
+            set_tile(30, cursor_r, cursor_c, WHITE);
           }
           else {
             puzzle[cursor_r][cursor_c] = BLACK;
-            SET_TILE(30, cursor_r, cursor_c, BLACK);
+            set_tile(30, cursor_r, cursor_c, BLACK);
           }
           break;
       }
     }
 
-    SET_TILE(31, cursor_r, cursor_c, CURSOR); // readd the cursor
+    set_tile(31, cursor_r, cursor_c, CURSOR); // readd the cursor
   }
 }
