@@ -12,12 +12,50 @@
 #define CURSOR 8
 #define NUMBER(n) ((n) + 8)
 
-int main() {
 
-  
 
 #define NUR_ROWS 10
 #define NUR_COLS 10
+
+// Returns true if all squares are filled in with something.
+bool checkFull(int puzzle[NUR_ROWS][NUR_COLS]) {
+  for (int r = 0; r < NUR_ROWS - 1; r++) {
+    for (int c = 0; c < NUR_COLS - 1; c++) {
+      if (puzzle[r][c] == WHITE) return false;
+    }
+  }
+  return true;
+}
+
+// Returns true if there are no 2x2 pools of black squares.
+bool checkPools(int puzzle[NUR_ROWS][NUR_COLS]) {
+  for (int r = 0; r < NUR_ROWS - 1; r++) {
+    for (int c = 0; c < NUR_COLS - 1; c++) {
+      int r1 = r + 1;
+      int c1 = c + 1;
+      if ( puzzle[r ][c ] == BLACK
+        && puzzle[r1][c ] == BLACK
+        && puzzle[r ][c1] == BLACK
+        && puzzle[r1][c1] == BLACK
+      ) {
+        return false;
+      }
+    }
+  }
+  return true;
+}
+
+// Returns true if all the black squares are connected.
+bool checkBlack(int puzzle[NUR_ROWS][NUR_COLS]) {
+  return false;
+}
+
+// Returns true if each number n connects to n-1 dots, and no other numbers.
+bool checkNumbers(int puzzle[NUR_ROWS][NUR_COLS]) {
+  return false;
+}
+
+int main() {
 
   int puzzle[NUR_ROWS][NUR_COLS];
   puzzle[0][0] = NUMBER(2);
