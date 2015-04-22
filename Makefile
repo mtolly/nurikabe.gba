@@ -5,7 +5,7 @@ PATH := $(DEVKITARM)/bin:$(PATH)
 PROJ    := nurikabe
 TARGET  := $(PROJ)
 
-OBJS    := $(PROJ).o
+OBJS    := $(PROJ).o tileset.o
 
 # --- Build defines ---------------------------------------------------
 
@@ -40,8 +40,11 @@ $(TARGET).elf : $(OBJS)
 $(OBJS) : %.o : %.c
 	$(CC) -c $< $(CFLAGS) -o $@
 
-%.c : %.c.erb *.rb
+%.c : %.c.erb
 	erb $< > $@
+
+tileset.c tileset.h : tileset.png
+	grit tileset.png -gT ff00ff -gB 4 -ft c
 
 # --- Clean -----------------------------------------------------------
 

@@ -1,16 +1,23 @@
 #include <string.h>
 #include <tonc.h>
+#include "tileset.h"
 
-#define WHITE 0
-#define BLACK 1
-#define DOT 2
-#define OUTSIDE 3
-#define BOTTOM_EDGE 4
-#define RIGHT_EDGE 5
-#define BOTTOM_RIGHT_CORNER 6
-#define TRANSPARENT 7
-#define CURSOR 8
+#define TRANSPARENT 0
+#define CURSOR 1
+#define WHITE 2
+#define BLACK 3
+#define DOT 4
+#define BOTTOM_EDGE 5
+#define RIGHT_EDGE 6
+#define BOTTOM_RIGHT_CORNER 7
+#define OUTSIDE 8
 #define NUMBER(n) ((n) + 8)
+
+#define SET_TILE(cb, r, c, tile) (\
+  (se_mem[cb][(r) * 2 * 32 +      (c) * 2    ] = (tile) * 4    ), \
+  (se_mem[cb][(r) * 2 * 32 +      (c) * 2 + 1] = (tile) * 4 + 1), \
+  (se_mem[cb][(r) * 2 * 32 + 32 + (c) * 2    ] = (tile) * 4 + 2), \
+  (se_mem[cb][(r) * 2 * 32 + 32 + (c) * 2 + 1] = (tile) * 4 + 3)) \
 
 
 
@@ -162,278 +169,34 @@ puzzle[9][9] = WHITE;
   int cursor_r = 0;
   int cursor_c = 0;
 
-  
-
   // Load palette
-  pal_bg_mem[0] = CLR_MAG;
-pal_bg_mem[1] = CLR_BLACK;
-pal_bg_mem[2] = CLR_WHITE;
-pal_bg_mem[3] = RGB15(7,10,20);
-pal_bg_mem[4] = RGB15(8,8,8);
-pal_bg_mem[5] = CLR_RED;
+  memcpy(pal_bg_mem, tilesetPal, tilesetPalLen);
 
   // Load tiles into CBB 0
-  tile_mem[0][WHITE].data[0] = 0x11111111;
-tile_mem[0][WHITE].data[1] = 0x22222221;
-tile_mem[0][WHITE].data[2] = 0x22222221;
-tile_mem[0][WHITE].data[3] = 0x22222221;
-tile_mem[0][WHITE].data[4] = 0x22222221;
-tile_mem[0][WHITE].data[5] = 0x22222221;
-tile_mem[0][WHITE].data[6] = 0x22222221;
-tile_mem[0][WHITE].data[7] = 0x22222221;
-  tile_mem[0][BLACK].data[0] = 0x11111111;
-tile_mem[0][BLACK].data[1] = 0x44444441;
-tile_mem[0][BLACK].data[2] = 0x44444441;
-tile_mem[0][BLACK].data[3] = 0x44444441;
-tile_mem[0][BLACK].data[4] = 0x44444441;
-tile_mem[0][BLACK].data[5] = 0x44444441;
-tile_mem[0][BLACK].data[6] = 0x44444441;
-tile_mem[0][BLACK].data[7] = 0x44444441;
-  tile_mem[0][DOT].data[0] = 0x11111111;
-tile_mem[0][DOT].data[1] = 0x22222221;
-tile_mem[0][DOT].data[2] = 0x22222221;
-tile_mem[0][DOT].data[3] = 0x22242221;
-tile_mem[0][DOT].data[4] = 0x22414221;
-tile_mem[0][DOT].data[5] = 0x22242221;
-tile_mem[0][DOT].data[6] = 0x22222221;
-tile_mem[0][DOT].data[7] = 0x22222221;
-  
-    tile_mem[0][NUMBER(1)].data[0] = 0x11111111;
-tile_mem[0][NUMBER(1)].data[1] = 0x22222221;
-tile_mem[0][NUMBER(1)].data[2] = 0x22212221;
-tile_mem[0][NUMBER(1)].data[3] = 0x22212221;
-tile_mem[0][NUMBER(1)].data[4] = 0x22212221;
-tile_mem[0][NUMBER(1)].data[5] = 0x22212221;
-tile_mem[0][NUMBER(1)].data[6] = 0x22212221;
-tile_mem[0][NUMBER(1)].data[7] = 0x22222221;
-  
-    tile_mem[0][NUMBER(2)].data[0] = 0x11111111;
-tile_mem[0][NUMBER(2)].data[1] = 0x22222221;
-tile_mem[0][NUMBER(2)].data[2] = 0x21111121;
-tile_mem[0][NUMBER(2)].data[3] = 0x21222221;
-tile_mem[0][NUMBER(2)].data[4] = 0x21111121;
-tile_mem[0][NUMBER(2)].data[5] = 0x22222121;
-tile_mem[0][NUMBER(2)].data[6] = 0x21111121;
-tile_mem[0][NUMBER(2)].data[7] = 0x22222221;
-  
-    tile_mem[0][NUMBER(3)].data[0] = 0x11111111;
-tile_mem[0][NUMBER(3)].data[1] = 0x22222221;
-tile_mem[0][NUMBER(3)].data[2] = 0x21111121;
-tile_mem[0][NUMBER(3)].data[3] = 0x21222221;
-tile_mem[0][NUMBER(3)].data[4] = 0x21111121;
-tile_mem[0][NUMBER(3)].data[5] = 0x21222221;
-tile_mem[0][NUMBER(3)].data[6] = 0x21111121;
-tile_mem[0][NUMBER(3)].data[7] = 0x22222221;
-  
-    tile_mem[0][NUMBER(4)].data[0] = 0x11111111;
-tile_mem[0][NUMBER(4)].data[1] = 0x22222221;
-tile_mem[0][NUMBER(4)].data[2] = 0x21222121;
-tile_mem[0][NUMBER(4)].data[3] = 0x21222121;
-tile_mem[0][NUMBER(4)].data[4] = 0x21111121;
-tile_mem[0][NUMBER(4)].data[5] = 0x21222221;
-tile_mem[0][NUMBER(4)].data[6] = 0x21222221;
-tile_mem[0][NUMBER(4)].data[7] = 0x22222221;
-  
-    tile_mem[0][NUMBER(5)].data[0] = 0x11111111;
-tile_mem[0][NUMBER(5)].data[1] = 0x22222221;
-tile_mem[0][NUMBER(5)].data[2] = 0x21111121;
-tile_mem[0][NUMBER(5)].data[3] = 0x22222121;
-tile_mem[0][NUMBER(5)].data[4] = 0x21111121;
-tile_mem[0][NUMBER(5)].data[5] = 0x21222221;
-tile_mem[0][NUMBER(5)].data[6] = 0x21111121;
-tile_mem[0][NUMBER(5)].data[7] = 0x22222221;
-  
-    tile_mem[0][NUMBER(6)].data[0] = 0x11111111;
-tile_mem[0][NUMBER(6)].data[1] = 0x22222221;
-tile_mem[0][NUMBER(6)].data[2] = 0x21111121;
-tile_mem[0][NUMBER(6)].data[3] = 0x22222121;
-tile_mem[0][NUMBER(6)].data[4] = 0x21111121;
-tile_mem[0][NUMBER(6)].data[5] = 0x21222121;
-tile_mem[0][NUMBER(6)].data[6] = 0x21111121;
-tile_mem[0][NUMBER(6)].data[7] = 0x22222221;
-  
-    tile_mem[0][NUMBER(7)].data[0] = 0x11111111;
-tile_mem[0][NUMBER(7)].data[1] = 0x22222221;
-tile_mem[0][NUMBER(7)].data[2] = 0x21111121;
-tile_mem[0][NUMBER(7)].data[3] = 0x21222221;
-tile_mem[0][NUMBER(7)].data[4] = 0x21222221;
-tile_mem[0][NUMBER(7)].data[5] = 0x21222221;
-tile_mem[0][NUMBER(7)].data[6] = 0x21222221;
-tile_mem[0][NUMBER(7)].data[7] = 0x22222221;
-  
-    tile_mem[0][NUMBER(8)].data[0] = 0x11111111;
-tile_mem[0][NUMBER(8)].data[1] = 0x22222221;
-tile_mem[0][NUMBER(8)].data[2] = 0x21111121;
-tile_mem[0][NUMBER(8)].data[3] = 0x21222121;
-tile_mem[0][NUMBER(8)].data[4] = 0x21111121;
-tile_mem[0][NUMBER(8)].data[5] = 0x21222121;
-tile_mem[0][NUMBER(8)].data[6] = 0x21111121;
-tile_mem[0][NUMBER(8)].data[7] = 0x22222221;
-  
-    tile_mem[0][NUMBER(9)].data[0] = 0x11111111;
-tile_mem[0][NUMBER(9)].data[1] = 0x22222221;
-tile_mem[0][NUMBER(9)].data[2] = 0x21111121;
-tile_mem[0][NUMBER(9)].data[3] = 0x21222121;
-tile_mem[0][NUMBER(9)].data[4] = 0x21111121;
-tile_mem[0][NUMBER(9)].data[5] = 0x21222221;
-tile_mem[0][NUMBER(9)].data[6] = 0x21111121;
-tile_mem[0][NUMBER(9)].data[7] = 0x22222221;
-  
-    tile_mem[0][NUMBER(10)].data[0] = 0x11111111;
-tile_mem[0][NUMBER(10)].data[1] = 0x22222221;
-tile_mem[0][NUMBER(10)].data[2] = 0x21112121;
-tile_mem[0][NUMBER(10)].data[3] = 0x21212121;
-tile_mem[0][NUMBER(10)].data[4] = 0x21212121;
-tile_mem[0][NUMBER(10)].data[5] = 0x21212121;
-tile_mem[0][NUMBER(10)].data[6] = 0x21112121;
-tile_mem[0][NUMBER(10)].data[7] = 0x22222221;
-  
-    tile_mem[0][NUMBER(11)].data[0] = 0x11111111;
-tile_mem[0][NUMBER(11)].data[1] = 0x22222221;
-tile_mem[0][NUMBER(11)].data[2] = 0x22121221;
-tile_mem[0][NUMBER(11)].data[3] = 0x22121221;
-tile_mem[0][NUMBER(11)].data[4] = 0x22121221;
-tile_mem[0][NUMBER(11)].data[5] = 0x22121221;
-tile_mem[0][NUMBER(11)].data[6] = 0x22121221;
-tile_mem[0][NUMBER(11)].data[7] = 0x22222221;
-  
-    tile_mem[0][NUMBER(12)].data[0] = 0x11111111;
-tile_mem[0][NUMBER(12)].data[1] = 0x22222221;
-tile_mem[0][NUMBER(12)].data[2] = 0x21112121;
-tile_mem[0][NUMBER(12)].data[3] = 0x21222121;
-tile_mem[0][NUMBER(12)].data[4] = 0x21112121;
-tile_mem[0][NUMBER(12)].data[5] = 0x22212121;
-tile_mem[0][NUMBER(12)].data[6] = 0x21112121;
-tile_mem[0][NUMBER(12)].data[7] = 0x22222221;
-  
-    tile_mem[0][NUMBER(13)].data[0] = 0x11111111;
-tile_mem[0][NUMBER(13)].data[1] = 0x22222221;
-tile_mem[0][NUMBER(13)].data[2] = 0x21112121;
-tile_mem[0][NUMBER(13)].data[3] = 0x21222121;
-tile_mem[0][NUMBER(13)].data[4] = 0x21112121;
-tile_mem[0][NUMBER(13)].data[5] = 0x21222121;
-tile_mem[0][NUMBER(13)].data[6] = 0x21112121;
-tile_mem[0][NUMBER(13)].data[7] = 0x22222221;
-  
-    tile_mem[0][NUMBER(14)].data[0] = 0x11111111;
-tile_mem[0][NUMBER(14)].data[1] = 0x22222221;
-tile_mem[0][NUMBER(14)].data[2] = 0x21212121;
-tile_mem[0][NUMBER(14)].data[3] = 0x21212121;
-tile_mem[0][NUMBER(14)].data[4] = 0x21112121;
-tile_mem[0][NUMBER(14)].data[5] = 0x21222121;
-tile_mem[0][NUMBER(14)].data[6] = 0x21222121;
-tile_mem[0][NUMBER(14)].data[7] = 0x22222221;
-  
-    tile_mem[0][NUMBER(15)].data[0] = 0x11111111;
-tile_mem[0][NUMBER(15)].data[1] = 0x22222221;
-tile_mem[0][NUMBER(15)].data[2] = 0x21112121;
-tile_mem[0][NUMBER(15)].data[3] = 0x22212121;
-tile_mem[0][NUMBER(15)].data[4] = 0x21112121;
-tile_mem[0][NUMBER(15)].data[5] = 0x21222121;
-tile_mem[0][NUMBER(15)].data[6] = 0x21112121;
-tile_mem[0][NUMBER(15)].data[7] = 0x22222221;
-  
-    tile_mem[0][NUMBER(16)].data[0] = 0x11111111;
-tile_mem[0][NUMBER(16)].data[1] = 0x22222221;
-tile_mem[0][NUMBER(16)].data[2] = 0x21112121;
-tile_mem[0][NUMBER(16)].data[3] = 0x22212121;
-tile_mem[0][NUMBER(16)].data[4] = 0x21112121;
-tile_mem[0][NUMBER(16)].data[5] = 0x21212121;
-tile_mem[0][NUMBER(16)].data[6] = 0x21112121;
-tile_mem[0][NUMBER(16)].data[7] = 0x22222221;
-  
-    tile_mem[0][NUMBER(17)].data[0] = 0x11111111;
-tile_mem[0][NUMBER(17)].data[1] = 0x22222221;
-tile_mem[0][NUMBER(17)].data[2] = 0x21112121;
-tile_mem[0][NUMBER(17)].data[3] = 0x21222121;
-tile_mem[0][NUMBER(17)].data[4] = 0x21222121;
-tile_mem[0][NUMBER(17)].data[5] = 0x21222121;
-tile_mem[0][NUMBER(17)].data[6] = 0x21222121;
-tile_mem[0][NUMBER(17)].data[7] = 0x22222221;
-  
-    tile_mem[0][NUMBER(18)].data[0] = 0x11111111;
-tile_mem[0][NUMBER(18)].data[1] = 0x22222221;
-tile_mem[0][NUMBER(18)].data[2] = 0x21112121;
-tile_mem[0][NUMBER(18)].data[3] = 0x21212121;
-tile_mem[0][NUMBER(18)].data[4] = 0x21112121;
-tile_mem[0][NUMBER(18)].data[5] = 0x21212121;
-tile_mem[0][NUMBER(18)].data[6] = 0x21112121;
-tile_mem[0][NUMBER(18)].data[7] = 0x22222221;
-  
-    tile_mem[0][NUMBER(19)].data[0] = 0x11111111;
-tile_mem[0][NUMBER(19)].data[1] = 0x22222221;
-tile_mem[0][NUMBER(19)].data[2] = 0x21112121;
-tile_mem[0][NUMBER(19)].data[3] = 0x21212121;
-tile_mem[0][NUMBER(19)].data[4] = 0x21112121;
-tile_mem[0][NUMBER(19)].data[5] = 0x21222121;
-tile_mem[0][NUMBER(19)].data[6] = 0x21112121;
-tile_mem[0][NUMBER(19)].data[7] = 0x22222221;
-  
-
-  tile_mem[0][CURSOR].data[0] = 0x00000000;
-tile_mem[0][CURSOR].data[1] = 0x55000550;
-tile_mem[0][CURSOR].data[2] = 0x50000050;
-tile_mem[0][CURSOR].data[3] = 0x00000000;
-tile_mem[0][CURSOR].data[4] = 0x00000000;
-tile_mem[0][CURSOR].data[5] = 0x00000000;
-tile_mem[0][CURSOR].data[6] = 0x50000050;
-tile_mem[0][CURSOR].data[7] = 0x55000550;
-  tile_mem[0][TRANSPARENT].data[0] = 0x00000000;
-tile_mem[0][TRANSPARENT].data[1] = 0x00000000;
-tile_mem[0][TRANSPARENT].data[2] = 0x00000000;
-tile_mem[0][TRANSPARENT].data[3] = 0x00000000;
-tile_mem[0][TRANSPARENT].data[4] = 0x00000000;
-tile_mem[0][TRANSPARENT].data[5] = 0x00000000;
-tile_mem[0][TRANSPARENT].data[6] = 0x00000000;
-tile_mem[0][TRANSPARENT].data[7] = 0x00000000;
-
-  tile_mem[0][OUTSIDE].data[0] = 0x33333333;
-tile_mem[0][OUTSIDE].data[1] = 0x33333333;
-tile_mem[0][OUTSIDE].data[2] = 0x33333333;
-tile_mem[0][OUTSIDE].data[3] = 0x33333333;
-tile_mem[0][OUTSIDE].data[4] = 0x33333333;
-tile_mem[0][OUTSIDE].data[5] = 0x33333333;
-tile_mem[0][OUTSIDE].data[6] = 0x33333333;
-tile_mem[0][OUTSIDE].data[7] = 0x33333333;
-  tile_mem[0][BOTTOM_EDGE].data[0] = 0x11111111;
-tile_mem[0][BOTTOM_EDGE].data[1] = 0x33333333;
-tile_mem[0][BOTTOM_EDGE].data[2] = 0x33333333;
-tile_mem[0][BOTTOM_EDGE].data[3] = 0x33333333;
-tile_mem[0][BOTTOM_EDGE].data[4] = 0x33333333;
-tile_mem[0][BOTTOM_EDGE].data[5] = 0x33333333;
-tile_mem[0][BOTTOM_EDGE].data[6] = 0x33333333;
-tile_mem[0][BOTTOM_EDGE].data[7] = 0x33333333;
-  tile_mem[0][RIGHT_EDGE].data[0] = 0x33333331;
-tile_mem[0][RIGHT_EDGE].data[1] = 0x33333331;
-tile_mem[0][RIGHT_EDGE].data[2] = 0x33333331;
-tile_mem[0][RIGHT_EDGE].data[3] = 0x33333331;
-tile_mem[0][RIGHT_EDGE].data[4] = 0x33333331;
-tile_mem[0][RIGHT_EDGE].data[5] = 0x33333331;
-tile_mem[0][RIGHT_EDGE].data[6] = 0x33333331;
-tile_mem[0][RIGHT_EDGE].data[7] = 0x33333331;
-  tile_mem[0][BOTTOM_RIGHT_CORNER].data[0] = 0x33333331;
-tile_mem[0][BOTTOM_RIGHT_CORNER].data[1] = 0x33333333;
-tile_mem[0][BOTTOM_RIGHT_CORNER].data[2] = 0x33333333;
-tile_mem[0][BOTTOM_RIGHT_CORNER].data[3] = 0x33333333;
-tile_mem[0][BOTTOM_RIGHT_CORNER].data[4] = 0x33333333;
-tile_mem[0][BOTTOM_RIGHT_CORNER].data[5] = 0x33333333;
-tile_mem[0][BOTTOM_RIGHT_CORNER].data[6] = 0x33333333;
-tile_mem[0][BOTTOM_RIGHT_CORNER].data[7] = 0x33333333;
+  memcpy(tile_mem, tilesetTiles, tilesetTilesLen);
 
   // Load map into SBB 30
-  for (int i = 0; i < 32 * 32; i++) se_mem[30][i] = OUTSIDE;
-  for (int c = 0; c < NUR_COLS; c++) se_mem[30][NUR_ROWS * 32 + c] = BOTTOM_EDGE;
-  for (int r = 0; r < NUR_ROWS; r++) se_mem[30][r * 32 + NUR_COLS] = RIGHT_EDGE;
-  se_mem[30][NUR_ROWS * 32 + NUR_COLS] = BOTTOM_RIGHT_CORNER;
+  for (int r = 0; r < 32; r++) {
+    for (int c = 0; c < 32; c++) {
+      SET_TILE(30, r, c, OUTSIDE);
+    }
+  }
+  for (int c = 0; c < NUR_COLS; c++) SET_TILE(30, NUR_ROWS, c, BOTTOM_EDGE);
+  for (int r = 0; r < NUR_ROWS; r++) SET_TILE(30, r, NUR_COLS, RIGHT_EDGE);
+  SET_TILE(30, NUR_ROWS, NUR_COLS, BOTTOM_RIGHT_CORNER);
   for (int r = 0; r < NUR_ROWS; r++) {
     for (int c = 0; c < NUR_COLS; c++) {
-      se_mem[30][r * 32 + c] = puzzle[r][c];
+      SET_TILE(30, r, c, puzzle[r][c]);
     }
   }
 
   // Load map into SBB 31
-  for (int i = 0; i < 32 * 32; i++) se_mem[31][i] = TRANSPARENT;
-  se_mem[31][cursor_r * 32 + cursor_c] = CURSOR;
+  for (int r = 0; r < 32; r++) {
+    for (int c = 0; c < 32; c++) {
+      SET_TILE(31, r, c, TRANSPARENT);
+    }
+  }
+  SET_TILE(31, cursor_r, cursor_c, CURSOR);
 
   // set up BG0 for a 4bpp 64x32t map, using charblock 0 and screenblock 31 (cursor)
   REG_BG0CNT = BG_CBB(0) | BG_SBB(31) | BG_4BPP | BG_REG_64x32;
@@ -449,7 +212,7 @@ tile_mem[0][BOTTOM_RIGHT_CORNER].data[7] = 0x33333333;
   while (1) {
     VBlankIntrWait();
     key_poll();
-    se_mem[31][cursor_r * 32 + cursor_c] = TRANSPARENT; // remove the cursor
+    SET_TILE(31, cursor_r, cursor_c, TRANSPARENT); // remove the cursor
     if (key_hit(1 << KI_LEFT | 1 << KI_RIGHT | 1 << KI_UP | 1 << KI_DOWN)) {
       key_repeat = 0; // reset the key repeat timer
     }
@@ -473,11 +236,13 @@ tile_mem[0][BOTTOM_RIGHT_CORNER].data[7] = 0x33333333;
       switch (puzzle[cursor_r][cursor_c]) {
         case WHITE:
         case BLACK:
-          puzzle[cursor_r][cursor_c] = se_mem[30][cursor_r * 32 + cursor_c] = DOT;
+          puzzle[cursor_r][cursor_c] = DOT;
+          SET_TILE(30, cursor_r, cursor_c, DOT);
           clearing = false;
           break;
         case DOT:
-          puzzle[cursor_r][cursor_c] = se_mem[30][cursor_r * 32 + cursor_c] = WHITE;
+          puzzle[cursor_r][cursor_c] = WHITE;
+          SET_TILE(30, cursor_r, cursor_c, WHITE);
           clearing = true;
           break;
         default:
@@ -491,10 +256,12 @@ tile_mem[0][BOTTOM_RIGHT_CORNER].data[7] = 0x33333333;
         case BLACK:
         case DOT:
           if (clearing) {
-            puzzle[cursor_r][cursor_c] = se_mem[30][cursor_r * 32 + cursor_c] = WHITE;
+            puzzle[cursor_r][cursor_c] = WHITE;
+            SET_TILE(30, cursor_r, cursor_c, WHITE);
           }
           else {
-            puzzle[cursor_r][cursor_c] = se_mem[30][cursor_r * 32 + cursor_c] = DOT;
+            puzzle[cursor_r][cursor_c] = DOT;
+            SET_TILE(30, cursor_r, cursor_c, DOT);
           }
           break;
       }
@@ -504,11 +271,13 @@ tile_mem[0][BOTTOM_RIGHT_CORNER].data[7] = 0x33333333;
       switch (puzzle[cursor_r][cursor_c]) {
         case WHITE:
         case DOT:
-          puzzle[cursor_r][cursor_c] = se_mem[30][cursor_r * 32 + cursor_c] = BLACK;
+          puzzle[cursor_r][cursor_c] = BLACK;
+          SET_TILE(30, cursor_r, cursor_c, BLACK);
           clearing = false;
           break;
         case BLACK:
-          puzzle[cursor_r][cursor_c] = se_mem[30][cursor_r * 32 + cursor_c] = WHITE;
+          puzzle[cursor_r][cursor_c] = WHITE;
+          SET_TILE(30, cursor_r, cursor_c, WHITE);
           clearing = true;
           break;
         default:
@@ -522,15 +291,17 @@ tile_mem[0][BOTTOM_RIGHT_CORNER].data[7] = 0x33333333;
         case BLACK:
         case DOT:
           if (clearing) {
-            puzzle[cursor_r][cursor_c] = se_mem[30][cursor_r * 32 + cursor_c] = WHITE;
+            puzzle[cursor_r][cursor_c] = WHITE;
+            SET_TILE(30, cursor_r, cursor_c, WHITE);
           }
           else {
-            puzzle[cursor_r][cursor_c] = se_mem[30][cursor_r * 32 + cursor_c] = BLACK;
+            puzzle[cursor_r][cursor_c] = BLACK;
+            SET_TILE(30, cursor_r, cursor_c, BLACK);
           }
           break;
       }
     }
 
-    se_mem[31][cursor_r * 32 + cursor_c] = CURSOR; // readd the cursor
+    SET_TILE(31, cursor_r, cursor_c, CURSOR); // readd the cursor
   }
 }
