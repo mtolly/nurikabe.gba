@@ -307,12 +307,15 @@ puzzle[14][14] = NUMBER(3);
   int cursor_c = 0;
 
   // Load palette
-  memcpy(pal_bg_mem, SharedPal, 16); // TODO: why doesn't SharedPalLen work?
+  memcpy16(pal_bg_mem, SharedPal, SharedPalLen / 2);
 
-  // Load tiles into CBB 0
-  memcpy(tile_mem, tiles16Tiles, tiles16TilesLen);
+  // Load tiles into CBB 0 (16x16) and 1 (8x8)
+  // Each charblock is 0x4000, an 8x8 tile is 0x20 bytes,
+  // so there are 512 8x8 tiles or 128 16x16 tiles in each charblock.
+  memcpy(tile_mem[0], tiles16Tiles, tiles16TilesLen);
+  memcpy(tile_mem[1], tiles8Tiles, tiles8TilesLen);
 
-  // Load map into SBB 30
+  // Load the 16x16 puzzle map into screenblocks 28-31
   for (int r = 0; r < 32; r++) {
     for (int c = 0; c < 32; c++) {
       set_tile(28, r, c, OUTSIDE);
@@ -327,7 +330,7 @@ puzzle[14][14] = NUMBER(3);
     }
   }
 
-  // Load map into SBB 31
+  // Load the 16x16 cursor map into screenblocks 24-27
   for (int r = 0; r < 32; r++) {
     for (int c = 0; c < 32; c++) {
       set_tile(24, r, c, TRANSPARENT);
@@ -335,6 +338,12 @@ puzzle[14][14] = NUMBER(3);
   }
   set_tile(24, cursor_r, cursor_c, CURSOR);
 
+  // 8x8 tiles:
+  // set up BG2 for a 4bpp 32x32t map, using charblock 1 and screenblock 22 (cursor)
+  REG_BG2CNT = BG_CBB(1) | BG_SBB(22) | BG_4BPP | BG_REG_32x32;
+  // set up BG3 for a 4bpp 32x32t map, using charblock 1 and screenblock 23 (puzzle squares)
+  REG_BG3CNT = BG_CBB(1) | BG_SBB(23) | BG_4BPP | BG_REG_32x32;
+  // 16x16 tiles:
   // set up BG0 for a 4bpp 64x64t map, using charblock 0 and screenblocks 24-27 (cursor)
   REG_BG0CNT = BG_CBB(0) | BG_SBB(24) | BG_4BPP | BG_REG_64x64;
   // set up BG1 for a 4bpp 64x64t map, using charblock 0 and screenblocks 28-31 (puzzle squares)
