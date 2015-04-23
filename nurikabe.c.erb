@@ -15,6 +15,10 @@
 #define NUMBER(n) ((n) + 8)
 
 void set_tile(int charblock, int r, int c, int tile) {
+  // First write to the 8x8 maps
+  if      (charblock == 24) se_mem[22][r * 32 + c] = tile;
+  else if (charblock == 28) se_mem[23][r * 32 + c] = tile;
+  // Now the 16x16 maps
   if (c >= 16) {
     // move over 1 charblock
     c -= 16;
@@ -25,8 +29,6 @@ void set_tile(int charblock, int r, int c, int tile) {
     r -= 16;
     charblock += 2;
   }
-  if      (charblock == 24) se_mem[22][r * 32 + c] = tile;
-  else if (charblock == 28) se_mem[23][r * 32 + c] = tile;
   se_mem[charblock][r * 2 * 32 +      c * 2    ] = tile * 4    ;
   se_mem[charblock][r * 2 * 32 +      c * 2 + 1] = tile * 4 + 1;
   se_mem[charblock][r * 2 * 32 + 32 + c * 2    ] = tile * 4 + 2;
@@ -118,12 +120,18 @@ int playPuzzle(int NUR_ROWS, int NUR_COLS, int puzzle[NUR_ROWS][NUR_COLS]) {
   REG_BG0CNT = BG_CBB(0) | BG_SBB(24) | BG_4BPP | BG_REG_64x64;
   // set up BG1 for a 4bpp 64x64t map, using charblock 0 and screenblocks 28-31 (puzzle squares)
   REG_BG1CNT = BG_CBB(0) | BG_SBB(28) | BG_4BPP | BG_REG_64x64;
-  REG_DISPCNT = DCNT_MODE0 | DCNT_BG2 | DCNT_BG3;
+  REG_DISPCNT = DCNT_MODE0 | DCNT_BG0 | DCNT_BG1;
+  bool small_tiles = false;
 
-  int max_horiz_offset = NUR_COLS * 16 - 240;
-  if (max_horiz_offset < 0) max_horiz_offset = 0;
-  int max_vert_offset  = NUR_ROWS * 16 - 160;
-  if (max_vert_offset < 0) max_vert_offset = 0;
+  int max_horiz_offset_16 = NUR_COLS * 16 - 240;
+  if (max_horiz_offset_16 < 0) max_horiz_offset_16 = 0;
+  int max_vert_offset_16  = NUR_ROWS * 16 - 160;
+  if (max_vert_offset_16 < 0) max_vert_offset_16 = 0;
+
+  int max_horiz_offset_8 = NUR_COLS * 8 - 240;
+  if (max_horiz_offset_8 < 0) max_horiz_offset_8 = 0;
+  int max_vert_offset_8  = NUR_ROWS * 8 - 160;
+  if (max_vert_offset_8 < 0) max_vert_offset_8 = 0;
 
   irq_init(NULL);
   irq_add(II_VBLANK, NULL);
@@ -148,10 +156,30 @@ int playPuzzle(int NUR_ROWS, int NUR_COLS, int puzzle[NUR_ROWS][NUR_COLS]) {
     bool virtual_up    = key_hit(1 << KI_UP   ) || (key_is_down(1 << KI_UP   ) && key_repeat == START_REPEAT);
     bool virtual_down  = key_hit(1 << KI_DOWN ) || (key_is_down(1 << KI_DOWN ) && key_repeat == START_REPEAT);
     bool moved_cursor = false;
-    if (virtual_left  && cursor_c > 0           ) { cursor_c--; REG_BG0HOFS = REG_BG1HOFS = (cursor_c * max_horiz_offset) / (NUR_COLS - 1); moved_cursor = true; }
-    if (virtual_right && cursor_c < NUR_COLS - 1) { cursor_c++; REG_BG0HOFS = REG_BG1HOFS = (cursor_c * max_horiz_offset) / (NUR_COLS - 1); moved_cursor = true; }
-    if (virtual_up    && cursor_r > 0           ) { cursor_r--; REG_BG0VOFS = REG_BG1VOFS = (cursor_r * max_vert_offset) / (NUR_ROWS - 1); moved_cursor = true; }
-    if (virtual_down  && cursor_r < NUR_ROWS - 1) { cursor_r++; REG_BG0VOFS = REG_BG1VOFS = (cursor_r * max_vert_offset) / (NUR_ROWS - 1); moved_cursor = true; }
+    if (virtual_left  && cursor_c > 0           ) {
+      cursor_c--;
+      REG_BG0HOFS = REG_BG1HOFS = (cursor_c * max_horiz_offset_16) / (NUR_COLS - 1);
+      REG_BG2HOFS = REG_BG3HOFS = (cursor_c * max_horiz_offset_8 ) / (NUR_COLS - 1);
+      moved_cursor = true;
+    }
+    if (virtual_right && cursor_c < NUR_COLS - 1) {
+      cursor_c++;
+      REG_BG0HOFS = REG_BG1HOFS = (cursor_c * max_horiz_offset_16) / (NUR_COLS - 1);
+      REG_BG2HOFS = REG_BG3HOFS = (cursor_c * max_horiz_offset_8 ) / (NUR_COLS - 1);
+      moved_cursor = true;
+    }
+    if (virtual_up    && cursor_r > 0           ) {
+      cursor_r--;
+      REG_BG0VOFS = REG_BG1VOFS = (cursor_r * max_vert_offset_16) / (NUR_ROWS - 1);
+      REG_BG2VOFS = REG_BG3VOFS = (cursor_r * max_vert_offset_8 ) / (NUR_ROWS - 1);
+      moved_cursor = true;
+    }
+    if (virtual_down  && cursor_r < NUR_ROWS - 1) {
+      cursor_r++;
+      REG_BG0VOFS = REG_BG1VOFS = (cursor_r * max_vert_offset_16) / (NUR_ROWS - 1);
+      REG_BG2VOFS = REG_BG3VOFS = (cursor_r * max_vert_offset_8 ) / (NUR_ROWS - 1);
+      moved_cursor = true;
+    }
 
     if (key_hit(1 << KI_A)) {
       switch (puzzle[cursor_r][cursor_c]) {
@@ -220,6 +248,16 @@ int playPuzzle(int NUR_ROWS, int NUR_COLS, int puzzle[NUR_ROWS][NUR_COLS]) {
             set_tile(28, cursor_r, cursor_c, BLACK);
           }
           break;
+      }
+    }
+
+    if (key_hit(1 << KI_SELECT)) {
+      small_tiles = !small_tiles;
+      if (small_tiles) {
+        REG_DISPCNT = DCNT_MODE0 | DCNT_BG2 | DCNT_BG3;
+      }
+      else {
+        REG_DISPCNT = DCNT_MODE0 | DCNT_BG0 | DCNT_BG1;
       }
     }
 
