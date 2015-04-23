@@ -73,7 +73,7 @@ bool checkNumbers(int NUR_ROWS, int NUR_COLS, int puzzle[NUR_ROWS][NUR_COLS]) {
   return false;
 }
 
-int playPuzzle(int NUR_ROWS, int NUR_COLS, int puzzle[NUR_ROWS][NUR_COLS]) {
+int playPuzzle(int NUR_ROWS, int NUR_COLS, int puzzle[NUR_ROWS][NUR_COLS], int puzzle_index) {
 
   int cursor_r = 0;
   int cursor_c = 0;
@@ -133,6 +133,9 @@ int playPuzzle(int NUR_ROWS, int NUR_COLS, int puzzle[NUR_ROWS][NUR_COLS]) {
   int max_vert_offset_8  = NUR_ROWS * 8 - 160;
   if (max_vert_offset_8 < 0) max_vert_offset_8 = 0;
 
+  REG_BG0HOFS = REG_BG1HOFS = REG_BG2HOFS = REG_BG3HOFS = 0;
+  REG_BG0VOFS = REG_BG1VOFS = REG_BG2VOFS = REG_BG3VOFS = 0;
+
   irq_init(NULL);
   irq_add(II_VBLANK, NULL);
 
@@ -186,11 +189,13 @@ int playPuzzle(int NUR_ROWS, int NUR_COLS, int puzzle[NUR_ROWS][NUR_COLS]) {
         case WHITE:
         case BLACK:
           puzzle[cursor_r][cursor_c] = DOT;
+          sram_mem[(puzzle_index + 1) * 1024 + cursor_r * NUR_COLS + cursor_c] = DOT;
           set_tile(28, cursor_r, cursor_c, DOT);
           clearing = false;
           break;
         case DOT:
           puzzle[cursor_r][cursor_c] = WHITE;
+          sram_mem[(puzzle_index + 1) * 1024 + cursor_r * NUR_COLS + cursor_c] = WHITE;
           set_tile(28, cursor_r, cursor_c, WHITE);
           clearing = true;
           break;
@@ -206,10 +211,12 @@ int playPuzzle(int NUR_ROWS, int NUR_COLS, int puzzle[NUR_ROWS][NUR_COLS]) {
         case DOT:
           if (clearing) {
             puzzle[cursor_r][cursor_c] = WHITE;
+            sram_mem[(puzzle_index + 1) * 1024 + cursor_r * NUR_COLS + cursor_c] = WHITE;
             set_tile(28, cursor_r, cursor_c, WHITE);
           }
           else {
             puzzle[cursor_r][cursor_c] = DOT;
+            sram_mem[(puzzle_index + 1) * 1024 + cursor_r * NUR_COLS + cursor_c] = DOT;
             set_tile(28, cursor_r, cursor_c, DOT);
           }
           break;
@@ -221,11 +228,13 @@ int playPuzzle(int NUR_ROWS, int NUR_COLS, int puzzle[NUR_ROWS][NUR_COLS]) {
         case WHITE:
         case DOT:
           puzzle[cursor_r][cursor_c] = BLACK;
+          sram_mem[(puzzle_index + 1) * 1024 + cursor_r * NUR_COLS + cursor_c] = BLACK;
           set_tile(28, cursor_r, cursor_c, BLACK);
           clearing = false;
           break;
         case BLACK:
           puzzle[cursor_r][cursor_c] = WHITE;
+          sram_mem[(puzzle_index + 1) * 1024 + cursor_r * NUR_COLS + cursor_c] = WHITE;
           set_tile(28, cursor_r, cursor_c, WHITE);
           clearing = true;
           break;
@@ -241,10 +250,12 @@ int playPuzzle(int NUR_ROWS, int NUR_COLS, int puzzle[NUR_ROWS][NUR_COLS]) {
         case DOT:
           if (clearing) {
             puzzle[cursor_r][cursor_c] = WHITE;
+            sram_mem[(puzzle_index + 1) * 1024 + cursor_r * NUR_COLS + cursor_c] = WHITE;
             set_tile(28, cursor_r, cursor_c, WHITE);
           }
           else {
             puzzle[cursor_r][cursor_c] = BLACK;
+            sram_mem[(puzzle_index + 1) * 1024 + cursor_r * NUR_COLS + cursor_c] = BLACK;
             set_tile(28, cursor_r, cursor_c, BLACK);
           }
           break;
@@ -261,238 +272,288 @@ int playPuzzle(int NUR_ROWS, int NUR_COLS, int puzzle[NUR_ROWS][NUR_COLS]) {
       }
     }
 
+    if (key_hit(1 << KI_L)) {
+      return -1; // move 1 puzzle to the left
+    }
+
+    if (key_hit(1 << KI_R)) {
+      return 1; // move 1 puzzle to the right
+    }
+
     set_tile(24, cursor_r, cursor_c, CURSOR); // readd the cursor
   }
 }
 
 
 
+// SRAM format:
+// byte 0: number of puzzles
+// byte 1: index of current puzzle
+// byte 2: rows of puzzle 0
+// byte 3: cols of puzzle 0
+// byte 4: rows of puzzle 1
+// byte 5: cols of puzzle 1
+// ...
+// at byte 1024:
+//   puzzle 0, 1 byte per square
+// at byte 2048:
+//   puzzle 1, 1 byte per square
+// ...
+void load_to_sram() {
+  // TODO: load a bunch of puzzles
+  sram_mem[0] = 1;
+  sram_mem[1] = 0;
+  sram_mem[2] = 15;
+  sram_mem[3] = 15;
+  sram_mem[1024 + 0] = NUMBER(1);
+sram_mem[1024 + 1] = WHITE;
+sram_mem[1024 + 2] = WHITE;
+sram_mem[1024 + 3] = WHITE;
+sram_mem[1024 + 4] = WHITE;
+sram_mem[1024 + 5] = WHITE;
+sram_mem[1024 + 6] = NUMBER(4);
+sram_mem[1024 + 7] = WHITE;
+sram_mem[1024 + 8] = WHITE;
+sram_mem[1024 + 9] = WHITE;
+sram_mem[1024 + 10] = WHITE;
+sram_mem[1024 + 11] = WHITE;
+sram_mem[1024 + 12] = NUMBER(4);
+sram_mem[1024 + 13] = WHITE;
+sram_mem[1024 + 14] = WHITE;
+sram_mem[1024 + 15] = WHITE;
+sram_mem[1024 + 16] = WHITE;
+sram_mem[1024 + 17] = WHITE;
+sram_mem[1024 + 18] = WHITE;
+sram_mem[1024 + 19] = WHITE;
+sram_mem[1024 + 20] = WHITE;
+sram_mem[1024 + 21] = WHITE;
+sram_mem[1024 + 22] = WHITE;
+sram_mem[1024 + 23] = WHITE;
+sram_mem[1024 + 24] = WHITE;
+sram_mem[1024 + 25] = WHITE;
+sram_mem[1024 + 26] = WHITE;
+sram_mem[1024 + 27] = WHITE;
+sram_mem[1024 + 28] = WHITE;
+sram_mem[1024 + 29] = WHITE;
+sram_mem[1024 + 30] = WHITE;
+sram_mem[1024 + 31] = WHITE;
+sram_mem[1024 + 32] = WHITE;
+sram_mem[1024 + 33] = NUMBER(3);
+sram_mem[1024 + 34] = WHITE;
+sram_mem[1024 + 35] = WHITE;
+sram_mem[1024 + 36] = WHITE;
+sram_mem[1024 + 37] = WHITE;
+sram_mem[1024 + 38] = WHITE;
+sram_mem[1024 + 39] = WHITE;
+sram_mem[1024 + 40] = WHITE;
+sram_mem[1024 + 41] = WHITE;
+sram_mem[1024 + 42] = WHITE;
+sram_mem[1024 + 43] = WHITE;
+sram_mem[1024 + 44] = WHITE;
+sram_mem[1024 + 45] = WHITE;
+sram_mem[1024 + 46] = WHITE;
+sram_mem[1024 + 47] = WHITE;
+sram_mem[1024 + 48] = WHITE;
+sram_mem[1024 + 49] = WHITE;
+sram_mem[1024 + 50] = WHITE;
+sram_mem[1024 + 51] = WHITE;
+sram_mem[1024 + 52] = NUMBER(3);
+sram_mem[1024 + 53] = WHITE;
+sram_mem[1024 + 54] = WHITE;
+sram_mem[1024 + 55] = WHITE;
+sram_mem[1024 + 56] = WHITE;
+sram_mem[1024 + 57] = WHITE;
+sram_mem[1024 + 58] = WHITE;
+sram_mem[1024 + 59] = NUMBER(4);
+sram_mem[1024 + 60] = WHITE;
+sram_mem[1024 + 61] = WHITE;
+sram_mem[1024 + 62] = NUMBER(4);
+sram_mem[1024 + 63] = WHITE;
+sram_mem[1024 + 64] = WHITE;
+sram_mem[1024 + 65] = WHITE;
+sram_mem[1024 + 66] = WHITE;
+sram_mem[1024 + 67] = WHITE;
+sram_mem[1024 + 68] = WHITE;
+sram_mem[1024 + 69] = WHITE;
+sram_mem[1024 + 70] = WHITE;
+sram_mem[1024 + 71] = WHITE;
+sram_mem[1024 + 72] = NUMBER(4);
+sram_mem[1024 + 73] = WHITE;
+sram_mem[1024 + 74] = WHITE;
+sram_mem[1024 + 75] = WHITE;
+sram_mem[1024 + 76] = WHITE;
+sram_mem[1024 + 77] = WHITE;
+sram_mem[1024 + 78] = WHITE;
+sram_mem[1024 + 79] = WHITE;
+sram_mem[1024 + 80] = NUMBER(3);
+sram_mem[1024 + 81] = WHITE;
+sram_mem[1024 + 82] = WHITE;
+sram_mem[1024 + 83] = WHITE;
+sram_mem[1024 + 84] = WHITE;
+sram_mem[1024 + 85] = NUMBER(5);
+sram_mem[1024 + 86] = WHITE;
+sram_mem[1024 + 87] = WHITE;
+sram_mem[1024 + 88] = WHITE;
+sram_mem[1024 + 89] = WHITE;
+sram_mem[1024 + 90] = WHITE;
+sram_mem[1024 + 91] = WHITE;
+sram_mem[1024 + 92] = WHITE;
+sram_mem[1024 + 93] = WHITE;
+sram_mem[1024 + 94] = WHITE;
+sram_mem[1024 + 95] = WHITE;
+sram_mem[1024 + 96] = WHITE;
+sram_mem[1024 + 97] = WHITE;
+sram_mem[1024 + 98] = WHITE;
+sram_mem[1024 + 99] = WHITE;
+sram_mem[1024 + 100] = WHITE;
+sram_mem[1024 + 101] = WHITE;
+sram_mem[1024 + 102] = WHITE;
+sram_mem[1024 + 103] = WHITE;
+sram_mem[1024 + 104] = NUMBER(3);
+sram_mem[1024 + 105] = WHITE;
+sram_mem[1024 + 106] = NUMBER(2);
+sram_mem[1024 + 107] = WHITE;
+sram_mem[1024 + 108] = NUMBER(3);
+sram_mem[1024 + 109] = WHITE;
+sram_mem[1024 + 110] = WHITE;
+sram_mem[1024 + 111] = WHITE;
+sram_mem[1024 + 112] = WHITE;
+sram_mem[1024 + 113] = WHITE;
+sram_mem[1024 + 114] = WHITE;
+sram_mem[1024 + 115] = WHITE;
+sram_mem[1024 + 116] = WHITE;
+sram_mem[1024 + 117] = WHITE;
+sram_mem[1024 + 118] = WHITE;
+sram_mem[1024 + 119] = WHITE;
+sram_mem[1024 + 120] = WHITE;
+sram_mem[1024 + 121] = WHITE;
+sram_mem[1024 + 122] = WHITE;
+sram_mem[1024 + 123] = WHITE;
+sram_mem[1024 + 124] = WHITE;
+sram_mem[1024 + 125] = WHITE;
+sram_mem[1024 + 126] = WHITE;
+sram_mem[1024 + 127] = NUMBER(4);
+sram_mem[1024 + 128] = WHITE;
+sram_mem[1024 + 129] = NUMBER(3);
+sram_mem[1024 + 130] = WHITE;
+sram_mem[1024 + 131] = WHITE;
+sram_mem[1024 + 132] = WHITE;
+sram_mem[1024 + 133] = NUMBER(6);
+sram_mem[1024 + 134] = WHITE;
+sram_mem[1024 + 135] = NUMBER(2);
+sram_mem[1024 + 136] = WHITE;
+sram_mem[1024 + 137] = WHITE;
+sram_mem[1024 + 138] = WHITE;
+sram_mem[1024 + 139] = WHITE;
+sram_mem[1024 + 140] = WHITE;
+sram_mem[1024 + 141] = NUMBER(4);
+sram_mem[1024 + 142] = WHITE;
+sram_mem[1024 + 143] = WHITE;
+sram_mem[1024 + 144] = WHITE;
+sram_mem[1024 + 145] = NUMBER(1);
+sram_mem[1024 + 146] = WHITE;
+sram_mem[1024 + 147] = WHITE;
+sram_mem[1024 + 148] = WHITE;
+sram_mem[1024 + 149] = WHITE;
+sram_mem[1024 + 150] = WHITE;
+sram_mem[1024 + 151] = WHITE;
+sram_mem[1024 + 152] = WHITE;
+sram_mem[1024 + 153] = NUMBER(5);
+sram_mem[1024 + 154] = WHITE;
+sram_mem[1024 + 155] = WHITE;
+sram_mem[1024 + 156] = WHITE;
+sram_mem[1024 + 157] = WHITE;
+sram_mem[1024 + 158] = NUMBER(3);
+sram_mem[1024 + 159] = WHITE;
+sram_mem[1024 + 160] = WHITE;
+sram_mem[1024 + 161] = WHITE;
+sram_mem[1024 + 162] = WHITE;
+sram_mem[1024 + 163] = WHITE;
+sram_mem[1024 + 164] = WHITE;
+sram_mem[1024 + 165] = WHITE;
+sram_mem[1024 + 166] = WHITE;
+sram_mem[1024 + 167] = WHITE;
+sram_mem[1024 + 168] = WHITE;
+sram_mem[1024 + 169] = WHITE;
+sram_mem[1024 + 170] = WHITE;
+sram_mem[1024 + 171] = WHITE;
+sram_mem[1024 + 172] = WHITE;
+sram_mem[1024 + 173] = WHITE;
+sram_mem[1024 + 174] = WHITE;
+sram_mem[1024 + 175] = WHITE;
+sram_mem[1024 + 176] = NUMBER(3);
+sram_mem[1024 + 177] = WHITE;
+sram_mem[1024 + 178] = NUMBER(2);
+sram_mem[1024 + 179] = WHITE;
+sram_mem[1024 + 180] = NUMBER(2);
+sram_mem[1024 + 181] = WHITE;
+sram_mem[1024 + 182] = WHITE;
+sram_mem[1024 + 183] = NUMBER(2);
+sram_mem[1024 + 184] = WHITE;
+sram_mem[1024 + 185] = WHITE;
+sram_mem[1024 + 186] = NUMBER(4);
+sram_mem[1024 + 187] = WHITE;
+sram_mem[1024 + 188] = NUMBER(1);
+sram_mem[1024 + 189] = WHITE;
+sram_mem[1024 + 190] = WHITE;
+sram_mem[1024 + 191] = WHITE;
+sram_mem[1024 + 192] = NUMBER(1);
+sram_mem[1024 + 193] = WHITE;
+sram_mem[1024 + 194] = WHITE;
+sram_mem[1024 + 195] = WHITE;
+sram_mem[1024 + 196] = WHITE;
+sram_mem[1024 + 197] = WHITE;
+sram_mem[1024 + 198] = WHITE;
+sram_mem[1024 + 199] = WHITE;
+sram_mem[1024 + 200] = WHITE;
+sram_mem[1024 + 201] = WHITE;
+sram_mem[1024 + 202] = WHITE;
+sram_mem[1024 + 203] = WHITE;
+sram_mem[1024 + 204] = WHITE;
+sram_mem[1024 + 205] = WHITE;
+sram_mem[1024 + 206] = WHITE;
+sram_mem[1024 + 207] = WHITE;
+sram_mem[1024 + 208] = WHITE;
+sram_mem[1024 + 209] = WHITE;
+sram_mem[1024 + 210] = WHITE;
+sram_mem[1024 + 211] = WHITE;
+sram_mem[1024 + 212] = NUMBER(2);
+sram_mem[1024 + 213] = WHITE;
+sram_mem[1024 + 214] = WHITE;
+sram_mem[1024 + 215] = NUMBER(2);
+sram_mem[1024 + 216] = WHITE;
+sram_mem[1024 + 217] = WHITE;
+sram_mem[1024 + 218] = NUMBER(2);
+sram_mem[1024 + 219] = WHITE;
+sram_mem[1024 + 220] = WHITE;
+sram_mem[1024 + 221] = WHITE;
+sram_mem[1024 + 222] = NUMBER(3);
+sram_mem[1024 + 223] = WHITE;
+sram_mem[1024 + 224] = NUMBER(3);
+}
+
 int main() {
-  int puzzle[15][15];
-  puzzle[0][0] = NUMBER(1);
-puzzle[0][1] = WHITE;
-puzzle[0][2] = WHITE;
-puzzle[0][3] = WHITE;
-puzzle[0][4] = WHITE;
-puzzle[0][5] = WHITE;
-puzzle[0][6] = NUMBER(4);
-puzzle[0][7] = WHITE;
-puzzle[0][8] = WHITE;
-puzzle[0][9] = WHITE;
-puzzle[0][10] = WHITE;
-puzzle[0][11] = WHITE;
-puzzle[0][12] = NUMBER(4);
-puzzle[0][13] = WHITE;
-puzzle[0][14] = WHITE;
-puzzle[1][0] = WHITE;
-puzzle[1][1] = WHITE;
-puzzle[1][2] = WHITE;
-puzzle[1][3] = WHITE;
-puzzle[1][4] = WHITE;
-puzzle[1][5] = WHITE;
-puzzle[1][6] = WHITE;
-puzzle[1][7] = WHITE;
-puzzle[1][8] = WHITE;
-puzzle[1][9] = WHITE;
-puzzle[1][10] = WHITE;
-puzzle[1][11] = WHITE;
-puzzle[1][12] = WHITE;
-puzzle[1][13] = WHITE;
-puzzle[1][14] = WHITE;
-puzzle[2][0] = WHITE;
-puzzle[2][1] = WHITE;
-puzzle[2][2] = WHITE;
-puzzle[2][3] = NUMBER(3);
-puzzle[2][4] = WHITE;
-puzzle[2][5] = WHITE;
-puzzle[2][6] = WHITE;
-puzzle[2][7] = WHITE;
-puzzle[2][8] = WHITE;
-puzzle[2][9] = WHITE;
-puzzle[2][10] = WHITE;
-puzzle[2][11] = WHITE;
-puzzle[2][12] = WHITE;
-puzzle[2][13] = WHITE;
-puzzle[2][14] = WHITE;
-puzzle[3][0] = WHITE;
-puzzle[3][1] = WHITE;
-puzzle[3][2] = WHITE;
-puzzle[3][3] = WHITE;
-puzzle[3][4] = WHITE;
-puzzle[3][5] = WHITE;
-puzzle[3][6] = WHITE;
-puzzle[3][7] = NUMBER(3);
-puzzle[3][8] = WHITE;
-puzzle[3][9] = WHITE;
-puzzle[3][10] = WHITE;
-puzzle[3][11] = WHITE;
-puzzle[3][12] = WHITE;
-puzzle[3][13] = WHITE;
-puzzle[3][14] = NUMBER(4);
-puzzle[4][0] = WHITE;
-puzzle[4][1] = WHITE;
-puzzle[4][2] = NUMBER(4);
-puzzle[4][3] = WHITE;
-puzzle[4][4] = WHITE;
-puzzle[4][5] = WHITE;
-puzzle[4][6] = WHITE;
-puzzle[4][7] = WHITE;
-puzzle[4][8] = WHITE;
-puzzle[4][9] = WHITE;
-puzzle[4][10] = WHITE;
-puzzle[4][11] = WHITE;
-puzzle[4][12] = NUMBER(4);
-puzzle[4][13] = WHITE;
-puzzle[4][14] = WHITE;
-puzzle[5][0] = WHITE;
-puzzle[5][1] = WHITE;
-puzzle[5][2] = WHITE;
-puzzle[5][3] = WHITE;
-puzzle[5][4] = WHITE;
-puzzle[5][5] = NUMBER(3);
-puzzle[5][6] = WHITE;
-puzzle[5][7] = WHITE;
-puzzle[5][8] = WHITE;
-puzzle[5][9] = WHITE;
-puzzle[5][10] = NUMBER(5);
-puzzle[5][11] = WHITE;
-puzzle[5][12] = WHITE;
-puzzle[5][13] = WHITE;
-puzzle[5][14] = WHITE;
-puzzle[6][0] = WHITE;
-puzzle[6][1] = WHITE;
-puzzle[6][2] = WHITE;
-puzzle[6][3] = WHITE;
-puzzle[6][4] = WHITE;
-puzzle[6][5] = WHITE;
-puzzle[6][6] = WHITE;
-puzzle[6][7] = WHITE;
-puzzle[6][8] = WHITE;
-puzzle[6][9] = WHITE;
-puzzle[6][10] = WHITE;
-puzzle[6][11] = WHITE;
-puzzle[6][12] = WHITE;
-puzzle[6][13] = WHITE;
-puzzle[6][14] = NUMBER(3);
-puzzle[7][0] = WHITE;
-puzzle[7][1] = NUMBER(2);
-puzzle[7][2] = WHITE;
-puzzle[7][3] = NUMBER(3);
-puzzle[7][4] = WHITE;
-puzzle[7][5] = WHITE;
-puzzle[7][6] = WHITE;
-puzzle[7][7] = WHITE;
-puzzle[7][8] = WHITE;
-puzzle[7][9] = WHITE;
-puzzle[7][10] = WHITE;
-puzzle[7][11] = WHITE;
-puzzle[7][12] = WHITE;
-puzzle[7][13] = WHITE;
-puzzle[7][14] = WHITE;
-puzzle[8][0] = WHITE;
-puzzle[8][1] = WHITE;
-puzzle[8][2] = WHITE;
-puzzle[8][3] = WHITE;
-puzzle[8][4] = WHITE;
-puzzle[8][5] = WHITE;
-puzzle[8][6] = WHITE;
-puzzle[8][7] = NUMBER(4);
-puzzle[8][8] = WHITE;
-puzzle[8][9] = NUMBER(3);
-puzzle[8][10] = WHITE;
-puzzle[8][11] = WHITE;
-puzzle[8][12] = WHITE;
-puzzle[8][13] = NUMBER(6);
-puzzle[8][14] = WHITE;
-puzzle[9][0] = NUMBER(2);
-puzzle[9][1] = WHITE;
-puzzle[9][2] = WHITE;
-puzzle[9][3] = WHITE;
-puzzle[9][4] = WHITE;
-puzzle[9][5] = WHITE;
-puzzle[9][6] = NUMBER(4);
-puzzle[9][7] = WHITE;
-puzzle[9][8] = WHITE;
-puzzle[9][9] = WHITE;
-puzzle[9][10] = NUMBER(1);
-puzzle[9][11] = WHITE;
-puzzle[9][12] = WHITE;
-puzzle[9][13] = WHITE;
-puzzle[9][14] = WHITE;
-puzzle[10][0] = WHITE;
-puzzle[10][1] = WHITE;
-puzzle[10][2] = WHITE;
-puzzle[10][3] = NUMBER(5);
-puzzle[10][4] = WHITE;
-puzzle[10][5] = WHITE;
-puzzle[10][6] = WHITE;
-puzzle[10][7] = WHITE;
-puzzle[10][8] = NUMBER(3);
-puzzle[10][9] = WHITE;
-puzzle[10][10] = WHITE;
-puzzle[10][11] = WHITE;
-puzzle[10][12] = WHITE;
-puzzle[10][13] = WHITE;
-puzzle[10][14] = WHITE;
-puzzle[11][0] = WHITE;
-puzzle[11][1] = WHITE;
-puzzle[11][2] = WHITE;
-puzzle[11][3] = WHITE;
-puzzle[11][4] = WHITE;
-puzzle[11][5] = WHITE;
-puzzle[11][6] = WHITE;
-puzzle[11][7] = WHITE;
-puzzle[11][8] = WHITE;
-puzzle[11][9] = WHITE;
-puzzle[11][10] = WHITE;
-puzzle[11][11] = NUMBER(3);
-puzzle[11][12] = WHITE;
-puzzle[11][13] = NUMBER(2);
-puzzle[11][14] = WHITE;
-puzzle[12][0] = NUMBER(2);
-puzzle[12][1] = WHITE;
-puzzle[12][2] = WHITE;
-puzzle[12][3] = NUMBER(2);
-puzzle[12][4] = WHITE;
-puzzle[12][5] = WHITE;
-puzzle[12][6] = NUMBER(4);
-puzzle[12][7] = WHITE;
-puzzle[12][8] = NUMBER(1);
-puzzle[12][9] = WHITE;
-puzzle[12][10] = WHITE;
-puzzle[12][11] = WHITE;
-puzzle[12][12] = NUMBER(1);
-puzzle[12][13] = WHITE;
-puzzle[12][14] = WHITE;
-puzzle[13][0] = WHITE;
-puzzle[13][1] = WHITE;
-puzzle[13][2] = WHITE;
-puzzle[13][3] = WHITE;
-puzzle[13][4] = WHITE;
-puzzle[13][5] = WHITE;
-puzzle[13][6] = WHITE;
-puzzle[13][7] = WHITE;
-puzzle[13][8] = WHITE;
-puzzle[13][9] = WHITE;
-puzzle[13][10] = WHITE;
-puzzle[13][11] = WHITE;
-puzzle[13][12] = WHITE;
-puzzle[13][13] = WHITE;
-puzzle[13][14] = WHITE;
-puzzle[14][0] = WHITE;
-puzzle[14][1] = WHITE;
-puzzle[14][2] = NUMBER(2);
-puzzle[14][3] = WHITE;
-puzzle[14][4] = WHITE;
-puzzle[14][5] = NUMBER(2);
-puzzle[14][6] = WHITE;
-puzzle[14][7] = WHITE;
-puzzle[14][8] = NUMBER(2);
-puzzle[14][9] = WHITE;
-puzzle[14][10] = WHITE;
-puzzle[14][11] = WHITE;
-puzzle[14][12] = NUMBER(3);
-puzzle[14][13] = WHITE;
-puzzle[14][14] = NUMBER(3);
-  playPuzzle(15, 15, puzzle);
+  if (sram_mem[0] == 0) {
+    // this is the first load; initialize the puzzles in save memory
+    load_to_sram();
+  }
+
+  u8 num_puzzles  = sram_mem[0];
+  u8 puzzle_index = sram_mem[1];
+  while (1) {
+    short num_rows = sram_mem[2 + puzzle_index * 2];
+    short num_cols = sram_mem[2 + puzzle_index * 2];
+    int puzzle[num_rows][num_cols];
+    for (int r = 0; r < num_rows; r++) {
+      for (int c = 0; c < num_cols; c++) {
+        puzzle[r][c] = sram_mem[(puzzle_index + 1) * 1024 + r * num_cols + c];
+      }
+    }
+    int puzzle_bump = playPuzzle(num_rows, num_cols, puzzle, puzzle_index);
+    int new_puzzle_index = puzzle_index + puzzle_bump;
+    if (0 <= new_puzzle_index && new_puzzle_index < num_puzzles) {
+      puzzle_index = new_puzzle_index;
+      sram_mem[1] = puzzle_index;
+    }
+  }
 }
