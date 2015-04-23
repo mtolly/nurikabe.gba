@@ -5,11 +5,10 @@
 @
 @	tiles16, 16x528@4, 
 @	Transparent color : FF,00,FF
-@	+ palette 16 entries, not compressed
 @	+ 132 tiles not compressed
-@	Total size: 32 + 4224 = 4256
+@	Total size: 4224 = 4224
 @
-@	Time-stamp: 2015-04-22, 19:46:43
+@	Time-stamp: 2015-04-23, 01:09:26
 @	Exported by Cearn's GBA Image Transmogrifier, v0.8.6
 @	( http://www.coranac.com/projects/#grit )
 @
@@ -169,12 +168,28 @@ tiles16Tiles:
 	.word 0x33233333,0x33233333,0x33233333,0x33233333,0x33233333,0x33333333,0x33333333,0x33333333
 	.size	tiles16Tiles, .-tiles16Tiles
 
+@}}BLOCK(tiles16)
+
+@{{BLOCK(Shared)
+
+@=======================================================================
+@
+@	Shared, 16x16@4, 
+@	Transparent color : FF,00,FF
+@	+ palette 5 entries, not compressed
+@	Total size: 10 = 10
+@
+@	Time-stamp: 2015-04-23, 01:09:26
+@	Exported by Cearn's GBA Image Transmogrifier, v0.8.6
+@	( http://www.coranac.com/projects/#grit )
+@
+@=======================================================================
+
 	.section .rodata
 	.align	2
-	.global tiles16Pal		@ 32 bytes
-tiles16Pal:
-	.hword 0x7C1F,0x0240,0x0000,0x7FFF,0x5DE6,0x0000,0x0000,0x0000
-	.hword 0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000
-	.size	tiles16Pal, .-tiles16Pal
+	.global SharedPal		@ 12 bytes
+SharedPal:
+	.hword 0x7C1F,0x0240,0x0000,0x7FFF,0x5DE6
+	.size	SharedPal, .-SharedPal
 
-@}}BLOCK(tiles16)
+@}}BLOCK(Shared)

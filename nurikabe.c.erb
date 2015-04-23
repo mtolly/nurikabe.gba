@@ -15,6 +15,16 @@
 #define NUMBER(n) ((n) + 8)
 
 void set_tile(int charblock, int r, int c, int tile) {
+  if (c >= 16) {
+    // move over 1 charblock
+    c -= 16;
+    charblock += 1;
+  }
+  if (r >= 16) {
+    // move down 1 charblock (= over 2)
+    r -= 16;
+    charblock += 2;
+  }
   se_mem[charblock][r * 2 * 32 +      c * 2    ] = tile * 4    ;
   se_mem[charblock][r * 2 * 32 +      c * 2 + 1] = tile * 4 + 1;
   se_mem[charblock][r * 2 * 32 + 32 + c * 2    ] = tile * 4 + 2;
@@ -23,16 +33,21 @@ void set_tile(int charblock, int r, int c, int tile) {
 
 <%
 puzzle = %w{
-  2-4-2--2--
-  ----------
-  -----2----
-  3-------3-
-  ---2--3--3
-  ----------
-  3-----1---
-  ---3------
-  2-----3--2
-  ---2------
+  1-----4-----4--
+  ---------------
+  ---3-----------
+  -------3------4
+  --4---------4--
+  -----3----5----
+  --------------3
+  -2-3-----------
+  -------4-3---6-
+  2-----4---1----
+  ---5----3------
+  -----------3-2-
+  2--2--4-1---1--
+  ---------------
+  --2--2--2---3-3
 }
 %>
 
@@ -92,7 +107,7 @@ int main() {
   int cursor_c = 0;
 
   // Load palette
-  memcpy(pal_bg_mem, tiles16Pal, tiles16PalLen);
+  memcpy(pal_bg_mem, SharedPal, 16); // TODO: why doesn't SharedPalLen work?
 
   // Load tiles into CBB 0
   memcpy(tile_mem, tiles16Tiles, tiles16TilesLen);
@@ -100,31 +115,36 @@ int main() {
   // Load map into SBB 30
   for (int r = 0; r < 32; r++) {
     for (int c = 0; c < 32; c++) {
-      set_tile(30, r, c, OUTSIDE);
+      set_tile(28, r, c, OUTSIDE);
     }
   }
-  for (int c = 0; c < NUR_COLS; c++) set_tile(30, NUR_ROWS, c, BOTTOM_EDGE);
-  for (int r = 0; r < NUR_ROWS; r++) set_tile(30, r, NUR_COLS, RIGHT_EDGE);
-  set_tile(30, NUR_ROWS, NUR_COLS, BOTTOM_RIGHT_CORNER);
+  for (int c = 0; c < NUR_COLS; c++) set_tile(28, NUR_ROWS, c, BOTTOM_EDGE);
+  for (int r = 0; r < NUR_ROWS; r++) set_tile(28, r, NUR_COLS, RIGHT_EDGE);
+  set_tile(28, NUR_ROWS, NUR_COLS, BOTTOM_RIGHT_CORNER);
   for (int r = 0; r < NUR_ROWS; r++) {
     for (int c = 0; c < NUR_COLS; c++) {
-      set_tile(30, r, c, puzzle[r][c]);
+      set_tile(28, r, c, puzzle[r][c]);
     }
   }
 
   // Load map into SBB 31
   for (int r = 0; r < 32; r++) {
     for (int c = 0; c < 32; c++) {
-      set_tile(31, r, c, TRANSPARENT);
+      set_tile(24, r, c, TRANSPARENT);
     }
   }
-  set_tile(31, cursor_r, cursor_c, CURSOR);
+  set_tile(24, cursor_r, cursor_c, CURSOR);
 
-  // set up BG0 for a 4bpp 64x32t map, using charblock 0 and screenblock 31 (cursor)
-  REG_BG0CNT = BG_CBB(0) | BG_SBB(31) | BG_4BPP | BG_REG_64x32;
-  // set up BG1 for a 4bpp 64x32t map, using charblock 0 and screenblock 30 (puzzle squares)
-  REG_BG1CNT = BG_CBB(0) | BG_SBB(30) | BG_4BPP | BG_REG_64x32;
+  // set up BG0 for a 4bpp 64x64t map, using charblock 0 and screenblocks 24-27 (cursor)
+  REG_BG0CNT = BG_CBB(0) | BG_SBB(24) | BG_4BPP | BG_REG_64x64;
+  // set up BG1 for a 4bpp 64x64t map, using charblock 0 and screenblocks 28-31 (puzzle squares)
+  REG_BG1CNT = BG_CBB(0) | BG_SBB(28) | BG_4BPP | BG_REG_64x64;
   REG_DISPCNT = DCNT_MODE0 | DCNT_BG0 | DCNT_BG1;
+
+  int max_horiz_offset = NUR_COLS * 16 - 240;
+  if (max_horiz_offset < 0) max_horiz_offset = 0;
+  int max_vert_offset  = NUR_ROWS * 16 - 159; // TODO: 160 is off, but why?
+  if (max_vert_offset < 0) max_vert_offset = 0;
 
   irq_init(NULL);
   irq_add(II_VBLANK, NULL);
@@ -134,7 +154,7 @@ int main() {
   while (1) {
     VBlankIntrWait();
     key_poll();
-    set_tile(31, cursor_r, cursor_c, TRANSPARENT); // remove the cursor
+    set_tile(24, cursor_r, cursor_c, TRANSPARENT); // remove the cursor
     if (key_hit(1 << KI_LEFT | 1 << KI_RIGHT | 1 << KI_UP | 1 << KI_DOWN)) {
       key_repeat = 0; // reset the key repeat timer
     }
@@ -149,22 +169,22 @@ int main() {
     bool virtual_up    = key_hit(1 << KI_UP   ) || (key_is_down(1 << KI_UP   ) && key_repeat == START_REPEAT);
     bool virtual_down  = key_hit(1 << KI_DOWN ) || (key_is_down(1 << KI_DOWN ) && key_repeat == START_REPEAT);
     bool moved_cursor = false;
-    if (virtual_left  && cursor_c > 0           ) { cursor_c--; moved_cursor = true; }
-    if (virtual_right && cursor_c < NUR_COLS - 1) { cursor_c++; moved_cursor = true; }
-    if (virtual_up    && cursor_r > 0           ) { cursor_r--; moved_cursor = true; }
-    if (virtual_down  && cursor_r < NUR_ROWS - 1) { cursor_r++; moved_cursor = true; }
+    if (virtual_left  && cursor_c > 0           ) { cursor_c--; REG_BG0HOFS = REG_BG1HOFS = (cursor_c * max_horiz_offset) / (NUR_COLS - 1); moved_cursor = true; }
+    if (virtual_right && cursor_c < NUR_COLS - 1) { cursor_c++; REG_BG0HOFS = REG_BG1HOFS = (cursor_c * max_horiz_offset) / (NUR_COLS - 1); moved_cursor = true; }
+    if (virtual_up    && cursor_r > 0           ) { cursor_r--; REG_BG0VOFS = REG_BG1VOFS = (cursor_r * max_vert_offset) / (NUR_ROWS - 1); moved_cursor = true; }
+    if (virtual_down  && cursor_r < NUR_ROWS - 1) { cursor_r++; REG_BG0VOFS = REG_BG1VOFS = (cursor_r * max_vert_offset) / (NUR_ROWS - 1); moved_cursor = true; }
 
     if (key_hit(1 << KI_A)) {
       switch (puzzle[cursor_r][cursor_c]) {
         case WHITE:
         case BLACK:
           puzzle[cursor_r][cursor_c] = DOT;
-          set_tile(30, cursor_r, cursor_c, DOT);
+          set_tile(28, cursor_r, cursor_c, DOT);
           clearing = false;
           break;
         case DOT:
           puzzle[cursor_r][cursor_c] = WHITE;
-          set_tile(30, cursor_r, cursor_c, WHITE);
+          set_tile(28, cursor_r, cursor_c, WHITE);
           clearing = true;
           break;
         default:
@@ -179,11 +199,11 @@ int main() {
         case DOT:
           if (clearing) {
             puzzle[cursor_r][cursor_c] = WHITE;
-            set_tile(30, cursor_r, cursor_c, WHITE);
+            set_tile(28, cursor_r, cursor_c, WHITE);
           }
           else {
             puzzle[cursor_r][cursor_c] = DOT;
-            set_tile(30, cursor_r, cursor_c, DOT);
+            set_tile(28, cursor_r, cursor_c, DOT);
           }
           break;
       }
@@ -194,12 +214,12 @@ int main() {
         case WHITE:
         case DOT:
           puzzle[cursor_r][cursor_c] = BLACK;
-          set_tile(30, cursor_r, cursor_c, BLACK);
+          set_tile(28, cursor_r, cursor_c, BLACK);
           clearing = false;
           break;
         case BLACK:
           puzzle[cursor_r][cursor_c] = WHITE;
-          set_tile(30, cursor_r, cursor_c, WHITE);
+          set_tile(28, cursor_r, cursor_c, WHITE);
           clearing = true;
           break;
         default:
@@ -214,16 +234,16 @@ int main() {
         case DOT:
           if (clearing) {
             puzzle[cursor_r][cursor_c] = WHITE;
-            set_tile(30, cursor_r, cursor_c, WHITE);
+            set_tile(28, cursor_r, cursor_c, WHITE);
           }
           else {
             puzzle[cursor_r][cursor_c] = BLACK;
-            set_tile(30, cursor_r, cursor_c, BLACK);
+            set_tile(28, cursor_r, cursor_c, BLACK);
           }
           break;
       }
     }
 
-    set_tile(31, cursor_r, cursor_c, CURSOR); // readd the cursor
+    set_tile(24, cursor_r, cursor_c, CURSOR); // readd the cursor
   }
 }

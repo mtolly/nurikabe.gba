@@ -45,10 +45,8 @@ tiles8.o: tiles8.s
 	$(CC) -c $< $(CFLAGS) -o $@
 %.c: %.c.erb
 	erb $< > $@
-tiles16.s tiles16.h : tiles16.png
-	grit tiles16.png -gT ff00ff -gB 4
-tiles8.s tiles8.h : tiles8.png
-	grit tiles8.png -gT ff00ff -gB 4
+tiles16.s tiles16.h tiles8.s tiles8.h: tiles16.png tiles8.png
+	grit tiles16.png tiles8.png -gT ff00ff -gB 4 -pS
 
 # --- Clean -----------------------------------------------------------
 
