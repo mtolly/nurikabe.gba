@@ -31,13 +31,8 @@ void set_tile(int charblock, int r, int c, int tile) {
   se_mem[charblock][r * 2 * 32 + 32 + c * 2 + 1] = tile * 4 + 3;
 }
 
-
-
-#define NUR_ROWS 15
-#define NUR_COLS 15
-
 // Returns true if all squares are filled in with something.
-bool checkFull(int puzzle[NUR_ROWS][NUR_COLS]) {
+bool checkFull(int NUR_ROWS, int NUR_COLS, int puzzle[NUR_ROWS][NUR_COLS]) {
   for (int r = 0; r < NUR_ROWS - 1; r++) {
     for (int c = 0; c < NUR_COLS - 1; c++) {
       if (puzzle[r][c] == WHITE) return false;
@@ -47,7 +42,7 @@ bool checkFull(int puzzle[NUR_ROWS][NUR_COLS]) {
 }
 
 // Returns true if there are no 2x2 pools of black squares.
-bool checkPools(int puzzle[NUR_ROWS][NUR_COLS]) {
+bool checkPools(int NUR_ROWS, int NUR_COLS, int puzzle[NUR_ROWS][NUR_COLS]) {
   for (int r = 0; r < NUR_ROWS - 1; r++) {
     for (int c = 0; c < NUR_COLS - 1; c++) {
       int r1 = r + 1;
@@ -65,18 +60,175 @@ bool checkPools(int puzzle[NUR_ROWS][NUR_COLS]) {
 }
 
 // Returns true if all the black squares are connected.
-bool checkBlack(int puzzle[NUR_ROWS][NUR_COLS]) {
+bool checkBlack(int NUR_ROWS, int NUR_COLS, int puzzle[NUR_ROWS][NUR_COLS]) {
   return false;
 }
 
 // Returns true if each number n connects to n-1 dots, and no other numbers.
-bool checkNumbers(int puzzle[NUR_ROWS][NUR_COLS]) {
+bool checkNumbers(int NUR_ROWS, int NUR_COLS, int puzzle[NUR_ROWS][NUR_COLS]) {
   return false;
 }
 
-int main() {
+int playPuzzle(int NUR_ROWS, int NUR_COLS, int puzzle[NUR_ROWS][NUR_COLS]) {
 
-  int puzzle[NUR_ROWS][NUR_COLS];
+  int cursor_r = 0;
+  int cursor_c = 0;
+
+  // Load palette
+  memcpy16(pal_bg_mem, SharedPal, SharedPalLen / 2);
+
+  // Load tiles into CBB 0 (16x16) and 1 (8x8)
+  // Each charblock is 0x4000, an 8x8 tile is 0x20 bytes,
+  // so there are 512 8x8 tiles or 128 16x16 tiles in each charblock.
+  memcpy16(tile_mem[0], tiles16Tiles, tiles16TilesLen / 2);
+  memcpy16(tile_mem[1], tiles8Tiles, tiles8TilesLen / 2);
+
+  // Load the 16x16 puzzle map into screenblocks 28-31
+  for (int r = 0; r < 32; r++) {
+    for (int c = 0; c < 32; c++) {
+      set_tile(28, r, c, OUTSIDE);
+    }
+  }
+  for (int c = 0; c < NUR_COLS; c++) set_tile(28, NUR_ROWS, c, BOTTOM_EDGE);
+  for (int r = 0; r < NUR_ROWS; r++) set_tile(28, r, NUR_COLS, RIGHT_EDGE);
+  set_tile(28, NUR_ROWS, NUR_COLS, BOTTOM_RIGHT_CORNER);
+  for (int r = 0; r < NUR_ROWS; r++) {
+    for (int c = 0; c < NUR_COLS; c++) {
+      set_tile(28, r, c, puzzle[r][c]);
+    }
+  }
+
+  // Load the 16x16 cursor map into screenblocks 24-27
+  for (int r = 0; r < 32; r++) {
+    for (int c = 0; c < 32; c++) {
+      set_tile(24, r, c, TRANSPARENT);
+    }
+  }
+  set_tile(24, cursor_r, cursor_c, CURSOR);
+
+  // 8x8 tiles:
+  // set up BG2 for a 4bpp 32x32t map, using charblock 1 and screenblock 22 (cursor)
+  REG_BG2CNT = BG_CBB(1) | BG_SBB(22) | BG_4BPP | BG_REG_32x32;
+  // set up BG3 for a 4bpp 32x32t map, using charblock 1 and screenblock 23 (puzzle squares)
+  REG_BG3CNT = BG_CBB(1) | BG_SBB(23) | BG_4BPP | BG_REG_32x32;
+  // 16x16 tiles:
+  // set up BG0 for a 4bpp 64x64t map, using charblock 0 and screenblocks 24-27 (cursor)
+  REG_BG0CNT = BG_CBB(0) | BG_SBB(24) | BG_4BPP | BG_REG_64x64;
+  // set up BG1 for a 4bpp 64x64t map, using charblock 0 and screenblocks 28-31 (puzzle squares)
+  REG_BG1CNT = BG_CBB(0) | BG_SBB(28) | BG_4BPP | BG_REG_64x64;
+  REG_DISPCNT = DCNT_MODE0 | DCNT_BG0 | DCNT_BG1;
+
+  int max_horiz_offset = NUR_COLS * 16 - 240;
+  if (max_horiz_offset < 0) max_horiz_offset = 0;
+  int max_vert_offset  = NUR_ROWS * 16 - 160;
+  if (max_vert_offset < 0) max_vert_offset = 0;
+
+  irq_init(NULL);
+  irq_add(II_VBLANK, NULL);
+
+  int key_repeat = 0;
+  bool clearing = false;
+  while (1) {
+    VBlankIntrWait();
+    key_poll();
+    set_tile(24, cursor_r, cursor_c, TRANSPARENT); // remove the cursor
+    if (key_hit(1 << KI_LEFT | 1 << KI_RIGHT | 1 << KI_UP | 1 << KI_DOWN)) {
+      key_repeat = 0; // reset the key repeat timer
+    }
+#define START_REPEAT 20
+#define REPEAT_SPEED 2
+    if (key_is_down(1 << KI_LEFT | 1 << KI_RIGHT | 1 << KI_UP | 1 << KI_DOWN)) {
+      if (key_repeat < START_REPEAT) key_repeat++;
+      else key_repeat = START_REPEAT - REPEAT_SPEED;
+    }
+    bool virtual_left  = key_hit(1 << KI_LEFT ) || (key_is_down(1 << KI_LEFT ) && key_repeat == START_REPEAT);
+    bool virtual_right = key_hit(1 << KI_RIGHT) || (key_is_down(1 << KI_RIGHT) && key_repeat == START_REPEAT);
+    bool virtual_up    = key_hit(1 << KI_UP   ) || (key_is_down(1 << KI_UP   ) && key_repeat == START_REPEAT);
+    bool virtual_down  = key_hit(1 << KI_DOWN ) || (key_is_down(1 << KI_DOWN ) && key_repeat == START_REPEAT);
+    bool moved_cursor = false;
+    if (virtual_left  && cursor_c > 0           ) { cursor_c--; REG_BG0HOFS = REG_BG1HOFS = (cursor_c * max_horiz_offset) / (NUR_COLS - 1); moved_cursor = true; }
+    if (virtual_right && cursor_c < NUR_COLS - 1) { cursor_c++; REG_BG0HOFS = REG_BG1HOFS = (cursor_c * max_horiz_offset) / (NUR_COLS - 1); moved_cursor = true; }
+    if (virtual_up    && cursor_r > 0           ) { cursor_r--; REG_BG0VOFS = REG_BG1VOFS = (cursor_r * max_vert_offset) / (NUR_ROWS - 1); moved_cursor = true; }
+    if (virtual_down  && cursor_r < NUR_ROWS - 1) { cursor_r++; REG_BG0VOFS = REG_BG1VOFS = (cursor_r * max_vert_offset) / (NUR_ROWS - 1); moved_cursor = true; }
+
+    if (key_hit(1 << KI_A)) {
+      switch (puzzle[cursor_r][cursor_c]) {
+        case WHITE:
+        case BLACK:
+          puzzle[cursor_r][cursor_c] = DOT;
+          set_tile(28, cursor_r, cursor_c, DOT);
+          clearing = false;
+          break;
+        case DOT:
+          puzzle[cursor_r][cursor_c] = WHITE;
+          set_tile(28, cursor_r, cursor_c, WHITE);
+          clearing = true;
+          break;
+        default:
+          clearing = false;
+          break;
+      }
+    }
+    else if (key_is_down(1 << KI_A) && moved_cursor) {
+      switch (puzzle[cursor_r][cursor_c]) {
+        case WHITE:
+        case BLACK:
+        case DOT:
+          if (clearing) {
+            puzzle[cursor_r][cursor_c] = WHITE;
+            set_tile(28, cursor_r, cursor_c, WHITE);
+          }
+          else {
+            puzzle[cursor_r][cursor_c] = DOT;
+            set_tile(28, cursor_r, cursor_c, DOT);
+          }
+          break;
+      }
+    }
+
+    if (key_hit(1 << KI_B)) {
+      switch (puzzle[cursor_r][cursor_c]) {
+        case WHITE:
+        case DOT:
+          puzzle[cursor_r][cursor_c] = BLACK;
+          set_tile(28, cursor_r, cursor_c, BLACK);
+          clearing = false;
+          break;
+        case BLACK:
+          puzzle[cursor_r][cursor_c] = WHITE;
+          set_tile(28, cursor_r, cursor_c, WHITE);
+          clearing = true;
+          break;
+        default:
+          clearing = false;
+          break;
+      }
+    }
+    else if (key_is_down(1 << KI_B) && moved_cursor) {
+      switch (puzzle[cursor_r][cursor_c]) {
+        case WHITE:
+        case BLACK:
+        case DOT:
+          if (clearing) {
+            puzzle[cursor_r][cursor_c] = WHITE;
+            set_tile(28, cursor_r, cursor_c, WHITE);
+          }
+          else {
+            puzzle[cursor_r][cursor_c] = BLACK;
+            set_tile(28, cursor_r, cursor_c, BLACK);
+          }
+          break;
+      }
+    }
+
+    set_tile(24, cursor_r, cursor_c, CURSOR); // readd the cursor
+  }
+}
+
+
+
+int main() {
+  int puzzle[15][15];
   puzzle[0][0] = NUMBER(1);
 puzzle[0][1] = WHITE;
 puzzle[0][2] = WHITE;
@@ -302,157 +454,5 @@ puzzle[14][11] = WHITE;
 puzzle[14][12] = NUMBER(3);
 puzzle[14][13] = WHITE;
 puzzle[14][14] = NUMBER(3);
-
-  int cursor_r = 0;
-  int cursor_c = 0;
-
-  // Load palette
-  memcpy16(pal_bg_mem, SharedPal, SharedPalLen / 2);
-
-  // Load tiles into CBB 0 (16x16) and 1 (8x8)
-  // Each charblock is 0x4000, an 8x8 tile is 0x20 bytes,
-  // so there are 512 8x8 tiles or 128 16x16 tiles in each charblock.
-  memcpy16(tile_mem[0], tiles16Tiles, tiles16TilesLen / 2);
-  memcpy16(tile_mem[1], tiles8Tiles, tiles8TilesLen / 2);
-
-  // Load the 16x16 puzzle map into screenblocks 28-31
-  for (int r = 0; r < 32; r++) {
-    for (int c = 0; c < 32; c++) {
-      set_tile(28, r, c, OUTSIDE);
-    }
-  }
-  for (int c = 0; c < NUR_COLS; c++) set_tile(28, NUR_ROWS, c, BOTTOM_EDGE);
-  for (int r = 0; r < NUR_ROWS; r++) set_tile(28, r, NUR_COLS, RIGHT_EDGE);
-  set_tile(28, NUR_ROWS, NUR_COLS, BOTTOM_RIGHT_CORNER);
-  for (int r = 0; r < NUR_ROWS; r++) {
-    for (int c = 0; c < NUR_COLS; c++) {
-      set_tile(28, r, c, puzzle[r][c]);
-    }
-  }
-
-  // Load the 16x16 cursor map into screenblocks 24-27
-  for (int r = 0; r < 32; r++) {
-    for (int c = 0; c < 32; c++) {
-      set_tile(24, r, c, TRANSPARENT);
-    }
-  }
-  set_tile(24, cursor_r, cursor_c, CURSOR);
-
-  // 8x8 tiles:
-  // set up BG2 for a 4bpp 32x32t map, using charblock 1 and screenblock 22 (cursor)
-  REG_BG2CNT = BG_CBB(1) | BG_SBB(22) | BG_4BPP | BG_REG_32x32;
-  // set up BG3 for a 4bpp 32x32t map, using charblock 1 and screenblock 23 (puzzle squares)
-  REG_BG3CNT = BG_CBB(1) | BG_SBB(23) | BG_4BPP | BG_REG_32x32;
-  // 16x16 tiles:
-  // set up BG0 for a 4bpp 64x64t map, using charblock 0 and screenblocks 24-27 (cursor)
-  REG_BG0CNT = BG_CBB(0) | BG_SBB(24) | BG_4BPP | BG_REG_64x64;
-  // set up BG1 for a 4bpp 64x64t map, using charblock 0 and screenblocks 28-31 (puzzle squares)
-  REG_BG1CNT = BG_CBB(0) | BG_SBB(28) | BG_4BPP | BG_REG_64x64;
-  REG_DISPCNT = DCNT_MODE0 | DCNT_BG0 | DCNT_BG1;
-
-  int max_horiz_offset = NUR_COLS * 16 - 240;
-  if (max_horiz_offset < 0) max_horiz_offset = 0;
-  int max_vert_offset  = NUR_ROWS * 16 - 159; // TODO: 160 is off, but why?
-  if (max_vert_offset < 0) max_vert_offset = 0;
-
-  irq_init(NULL);
-  irq_add(II_VBLANK, NULL);
-
-  int key_repeat = 0;
-  bool clearing = false;
-  while (1) {
-    VBlankIntrWait();
-    key_poll();
-    set_tile(24, cursor_r, cursor_c, TRANSPARENT); // remove the cursor
-    if (key_hit(1 << KI_LEFT | 1 << KI_RIGHT | 1 << KI_UP | 1 << KI_DOWN)) {
-      key_repeat = 0; // reset the key repeat timer
-    }
-#define START_REPEAT 20
-#define REPEAT_SPEED 2
-    if (key_is_down(1 << KI_LEFT | 1 << KI_RIGHT | 1 << KI_UP | 1 << KI_DOWN)) {
-      if (key_repeat < START_REPEAT) key_repeat++;
-      else key_repeat = START_REPEAT - REPEAT_SPEED;
-    }
-    bool virtual_left  = key_hit(1 << KI_LEFT ) || (key_is_down(1 << KI_LEFT ) && key_repeat == START_REPEAT);
-    bool virtual_right = key_hit(1 << KI_RIGHT) || (key_is_down(1 << KI_RIGHT) && key_repeat == START_REPEAT);
-    bool virtual_up    = key_hit(1 << KI_UP   ) || (key_is_down(1 << KI_UP   ) && key_repeat == START_REPEAT);
-    bool virtual_down  = key_hit(1 << KI_DOWN ) || (key_is_down(1 << KI_DOWN ) && key_repeat == START_REPEAT);
-    bool moved_cursor = false;
-    if (virtual_left  && cursor_c > 0           ) { cursor_c--; REG_BG0HOFS = REG_BG1HOFS = (cursor_c * max_horiz_offset) / (NUR_COLS - 1); moved_cursor = true; }
-    if (virtual_right && cursor_c < NUR_COLS - 1) { cursor_c++; REG_BG0HOFS = REG_BG1HOFS = (cursor_c * max_horiz_offset) / (NUR_COLS - 1); moved_cursor = true; }
-    if (virtual_up    && cursor_r > 0           ) { cursor_r--; REG_BG0VOFS = REG_BG1VOFS = (cursor_r * max_vert_offset) / (NUR_ROWS - 1); moved_cursor = true; }
-    if (virtual_down  && cursor_r < NUR_ROWS - 1) { cursor_r++; REG_BG0VOFS = REG_BG1VOFS = (cursor_r * max_vert_offset) / (NUR_ROWS - 1); moved_cursor = true; }
-
-    if (key_hit(1 << KI_A)) {
-      switch (puzzle[cursor_r][cursor_c]) {
-        case WHITE:
-        case BLACK:
-          puzzle[cursor_r][cursor_c] = DOT;
-          set_tile(28, cursor_r, cursor_c, DOT);
-          clearing = false;
-          break;
-        case DOT:
-          puzzle[cursor_r][cursor_c] = WHITE;
-          set_tile(28, cursor_r, cursor_c, WHITE);
-          clearing = true;
-          break;
-        default:
-          clearing = false;
-          break;
-      }
-    }
-    else if (key_is_down(1 << KI_A) && moved_cursor) {
-      switch (puzzle[cursor_r][cursor_c]) {
-        case WHITE:
-        case BLACK:
-        case DOT:
-          if (clearing) {
-            puzzle[cursor_r][cursor_c] = WHITE;
-            set_tile(28, cursor_r, cursor_c, WHITE);
-          }
-          else {
-            puzzle[cursor_r][cursor_c] = DOT;
-            set_tile(28, cursor_r, cursor_c, DOT);
-          }
-          break;
-      }
-    }
-
-    if (key_hit(1 << KI_B)) {
-      switch (puzzle[cursor_r][cursor_c]) {
-        case WHITE:
-        case DOT:
-          puzzle[cursor_r][cursor_c] = BLACK;
-          set_tile(28, cursor_r, cursor_c, BLACK);
-          clearing = false;
-          break;
-        case BLACK:
-          puzzle[cursor_r][cursor_c] = WHITE;
-          set_tile(28, cursor_r, cursor_c, WHITE);
-          clearing = true;
-          break;
-        default:
-          clearing = false;
-          break;
-      }
-    }
-    else if (key_is_down(1 << KI_B) && moved_cursor) {
-      switch (puzzle[cursor_r][cursor_c]) {
-        case WHITE:
-        case BLACK:
-        case DOT:
-          if (clearing) {
-            puzzle[cursor_r][cursor_c] = WHITE;
-            set_tile(28, cursor_r, cursor_c, WHITE);
-          }
-          else {
-            puzzle[cursor_r][cursor_c] = BLACK;
-            set_tile(28, cursor_r, cursor_c, BLACK);
-          }
-          break;
-      }
-    }
-
-    set_tile(24, cursor_r, cursor_c, CURSOR); // readd the cursor
-  }
+  playPuzzle(15, 15, puzzle);
 }

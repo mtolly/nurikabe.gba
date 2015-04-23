@@ -31,31 +31,8 @@ void set_tile(int charblock, int r, int c, int tile) {
   se_mem[charblock][r * 2 * 32 + 32 + c * 2 + 1] = tile * 4 + 3;
 }
 
-<%
-puzzle = %w{
-  1-----4-----4--
-  ---------------
-  ---3-----------
-  -------3------4
-  --4---------4--
-  -----3----5----
-  --------------3
-  -2-3-----------
-  -------4-3---6-
-  2-----4---1----
-  ---5----3------
-  -----------3-2-
-  2--2--4-1---1--
-  ---------------
-  --2--2--2---3-3
-}
-%>
-
-#define NUR_ROWS <%= puzzle.length %>
-#define NUR_COLS <%= puzzle[0].length %>
-
 // Returns true if all squares are filled in with something.
-bool checkFull(int puzzle[NUR_ROWS][NUR_COLS]) {
+bool checkFull(int NUR_ROWS, int NUR_COLS, int puzzle[NUR_ROWS][NUR_COLS]) {
   for (int r = 0; r < NUR_ROWS - 1; r++) {
     for (int c = 0; c < NUR_COLS - 1; c++) {
       if (puzzle[r][c] == WHITE) return false;
@@ -65,7 +42,7 @@ bool checkFull(int puzzle[NUR_ROWS][NUR_COLS]) {
 }
 
 // Returns true if there are no 2x2 pools of black squares.
-bool checkPools(int puzzle[NUR_ROWS][NUR_COLS]) {
+bool checkPools(int NUR_ROWS, int NUR_COLS, int puzzle[NUR_ROWS][NUR_COLS]) {
   for (int r = 0; r < NUR_ROWS - 1; r++) {
     for (int c = 0; c < NUR_COLS - 1; c++) {
       int r1 = r + 1;
@@ -83,25 +60,16 @@ bool checkPools(int puzzle[NUR_ROWS][NUR_COLS]) {
 }
 
 // Returns true if all the black squares are connected.
-bool checkBlack(int puzzle[NUR_ROWS][NUR_COLS]) {
+bool checkBlack(int NUR_ROWS, int NUR_COLS, int puzzle[NUR_ROWS][NUR_COLS]) {
   return false;
 }
 
 // Returns true if each number n connects to n-1 dots, and no other numbers.
-bool checkNumbers(int puzzle[NUR_ROWS][NUR_COLS]) {
+bool checkNumbers(int NUR_ROWS, int NUR_COLS, int puzzle[NUR_ROWS][NUR_COLS]) {
   return false;
 }
 
-int main() {
-
-  int puzzle[NUR_ROWS][NUR_COLS];
-  <%=
-  puzzle.each_with_index.map do |row, r|
-    row.split('').each_with_index.map do |square, c|
-      "puzzle[#{r}][#{c}] = #{square == '-' ? 'WHITE' : 'NUMBER(' + square + ')'};"
-    end.join("\n")
-  end.join("\n")
-  %>
+int playPuzzle(int NUR_ROWS, int NUR_COLS, int puzzle[NUR_ROWS][NUR_COLS]) {
 
   int cursor_r = 0;
   int cursor_c = 0;
@@ -152,7 +120,7 @@ int main() {
 
   int max_horiz_offset = NUR_COLS * 16 - 240;
   if (max_horiz_offset < 0) max_horiz_offset = 0;
-  int max_vert_offset  = NUR_ROWS * 16 - 159; // TODO: 160 is off, but why?
+  int max_vert_offset  = NUR_ROWS * 16 - 160;
   if (max_vert_offset < 0) max_vert_offset = 0;
 
   irq_init(NULL);
@@ -255,4 +223,36 @@ int main() {
 
     set_tile(24, cursor_r, cursor_c, CURSOR); // readd the cursor
   }
+}
+
+<%
+puzzle = %w{
+  1-----4-----4--
+  ---------------
+  ---3-----------
+  -------3------4
+  --4---------4--
+  -----3----5----
+  --------------3
+  -2-3-----------
+  -------4-3---6-
+  2-----4---1----
+  ---5----3------
+  -----------3-2-
+  2--2--4-1---1--
+  ---------------
+  --2--2--2---3-3
+}
+%>
+
+int main() {
+  int puzzle[<%= puzzle.length %>][<%= puzzle[0].length %>];
+  <%=
+  puzzle.each_with_index.map do |row, r|
+    row.split('').each_with_index.map do |square, c|
+      "puzzle[#{r}][#{c}] = #{square == '-' ? 'WHITE' : 'NUMBER(' + square + ')'};"
+    end.join("\n")
+  end.join("\n")
+  %>
+  playPuzzle(<%= puzzle.length %>, <%= puzzle[0].length %>, puzzle);
 }
