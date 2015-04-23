@@ -290,7 +290,7 @@ int main() {
   <%=
   puzzle.each_with_index.map do |row, r|
     row.split('').each_with_index.map do |square, c|
-      "puzzle[#{r}][#{c}] = #{square == '-' ? 'WHITE' : 'NUMBER(' + square + ')'};"
+      "puzzle[#{r}][#{c}] = #{square == '-' ? 'WHITE' : 'NUMBER(' + square.to_i(36).to_s + ')'};"
     end.join("\n")
   end.join("\n")
   %>
