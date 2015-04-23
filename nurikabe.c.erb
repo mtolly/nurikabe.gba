@@ -25,6 +25,8 @@ void set_tile(int charblock, int r, int c, int tile) {
     r -= 16;
     charblock += 2;
   }
+  if      (charblock == 24) se_mem[22][r * 32 + c] = tile;
+  else if (charblock == 28) se_mem[23][r * 32 + c] = tile;
   se_mem[charblock][r * 2 * 32 +      c * 2    ] = tile * 4    ;
   se_mem[charblock][r * 2 * 32 +      c * 2 + 1] = tile * 4 + 1;
   se_mem[charblock][r * 2 * 32 + 32 + c * 2    ] = tile * 4 + 2;
@@ -116,7 +118,7 @@ int playPuzzle(int NUR_ROWS, int NUR_COLS, int puzzle[NUR_ROWS][NUR_COLS]) {
   REG_BG0CNT = BG_CBB(0) | BG_SBB(24) | BG_4BPP | BG_REG_64x64;
   // set up BG1 for a 4bpp 64x64t map, using charblock 0 and screenblocks 28-31 (puzzle squares)
   REG_BG1CNT = BG_CBB(0) | BG_SBB(28) | BG_4BPP | BG_REG_64x64;
-  REG_DISPCNT = DCNT_MODE0 | DCNT_BG0 | DCNT_BG1;
+  REG_DISPCNT = DCNT_MODE0 | DCNT_BG2 | DCNT_BG3;
 
   int max_horiz_offset = NUR_COLS * 16 - 240;
   if (max_horiz_offset < 0) max_horiz_offset = 0;
