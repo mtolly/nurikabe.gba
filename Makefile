@@ -5,7 +5,7 @@ PATH := $(DEVKITARM)/bin:$(PATH)
 PROJ    := nurikabe
 TARGET  := $(PROJ)
 
-OBJS    := $(PROJ).o tileset.o
+OBJS    := $(PROJ).o tiles16.o tiles8.o
 
 # --- Build defines ---------------------------------------------------
 
@@ -37,14 +37,18 @@ $(TARGET).elf : $(OBJS)
 	$(LD) $^ $(LDFLAGS) -o $@
 
 # Compile (step 1)
-$(OBJS) : %.o : %.c
+nurikabe.o: nurikabe.c tiles16.h tiles8.h
 	$(CC) -c $< $(CFLAGS) -o $@
-
-%.c : %.c.erb
+tiles16.o: tiles16.s
+	$(CC) -c $< $(CFLAGS) -o $@
+tiles8.o: tiles8.s
+	$(CC) -c $< $(CFLAGS) -o $@
+%.c: %.c.erb
 	erb $< > $@
-
-tileset.c tileset.h : tileset.png
-	grit tileset.png -gT ff00ff -gB 4 -ft c
+tiles16.s tiles16.h : tiles16.png
+	grit tiles16.png -gT ff00ff -gB 4
+tiles8.s tiles8.h : tiles8.png
+	grit tiles8.png -gT ff00ff -gB 4
 
 # --- Clean -----------------------------------------------------------
 

@@ -1,6 +1,7 @@
 #include <string.h>
 #include <tonc.h>
-#include "tileset.h"
+#include "tiles16.h"
+#include "tiles8.h"
 
 #define TRANSPARENT 0
 #define CURSOR 1
@@ -171,10 +172,10 @@ puzzle[9][9] = WHITE;
   int cursor_c = 0;
 
   // Load palette
-  memcpy(pal_bg_mem, tilesetPal, tilesetPalLen);
+  memcpy(pal_bg_mem, tiles16Pal, tiles16PalLen);
 
   // Load tiles into CBB 0
-  memcpy(tile_mem, tilesetTiles, tilesetTilesLen);
+  memcpy(tile_mem, tiles16Tiles, tiles16TilesLen);
 
   // Load map into SBB 30
   for (int r = 0; r < 32; r++) {
