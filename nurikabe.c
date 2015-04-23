@@ -312,8 +312,8 @@ puzzle[14][14] = NUMBER(3);
   // Load tiles into CBB 0 (16x16) and 1 (8x8)
   // Each charblock is 0x4000, an 8x8 tile is 0x20 bytes,
   // so there are 512 8x8 tiles or 128 16x16 tiles in each charblock.
-  memcpy(tile_mem[0], tiles16Tiles, tiles16TilesLen);
-  memcpy(tile_mem[1], tiles8Tiles, tiles8TilesLen);
+  memcpy16(tile_mem[0], tiles16Tiles, tiles16TilesLen / 2);
+  memcpy16(tile_mem[1], tiles8Tiles, tiles8TilesLen / 2);
 
   // Load the 16x16 puzzle map into screenblocks 28-31
   for (int r = 0; r < 32; r++) {
