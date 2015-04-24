@@ -14,6 +14,8 @@
 #define OUTSIDE 8
 #define NUMBER(n) ((n) + 8)
 
+const char *magic_save = "SRAM_Vnnn";
+
 void set_tile(int charblock, int r, int c, int tile) {
   // First write to the 8x8 maps
   if      (charblock == 24) se_mem[22][r * 32 + c] = tile;
@@ -284,8 +286,6 @@ int playPuzzle(int NUR_ROWS, int NUR_COLS, int puzzle[NUR_ROWS][NUR_COLS], int p
   }
 }
 
-
-
 // SRAM format:
 // byte 0: number of puzzles
 // byte 1: index of current puzzle
@@ -301,235 +301,2432 @@ int playPuzzle(int NUR_ROWS, int NUR_COLS, int puzzle[NUR_ROWS][NUR_COLS], int p
 // ...
 void load_to_sram() {
   // TODO: load a bunch of puzzles
-  sram_mem[0] = 1;
+  
+  sram_mem[0] = 10;
   sram_mem[1] = 0;
-  sram_mem[2] = 15;
-  sram_mem[3] = 15;
-  sram_mem[1024 + 0] = NUMBER(1);
-sram_mem[1024 + 1] = WHITE;
-sram_mem[1024 + 2] = WHITE;
-sram_mem[1024 + 3] = WHITE;
-sram_mem[1024 + 4] = WHITE;
-sram_mem[1024 + 5] = WHITE;
-sram_mem[1024 + 6] = NUMBER(4);
-sram_mem[1024 + 7] = WHITE;
-sram_mem[1024 + 8] = WHITE;
-sram_mem[1024 + 9] = WHITE;
-sram_mem[1024 + 10] = WHITE;
-sram_mem[1024 + 11] = WHITE;
-sram_mem[1024 + 12] = NUMBER(4);
-sram_mem[1024 + 13] = WHITE;
-sram_mem[1024 + 14] = WHITE;
-sram_mem[1024 + 15] = WHITE;
-sram_mem[1024 + 16] = WHITE;
-sram_mem[1024 + 17] = WHITE;
-sram_mem[1024 + 18] = WHITE;
-sram_mem[1024 + 19] = WHITE;
-sram_mem[1024 + 20] = WHITE;
-sram_mem[1024 + 21] = WHITE;
-sram_mem[1024 + 22] = WHITE;
-sram_mem[1024 + 23] = WHITE;
-sram_mem[1024 + 24] = WHITE;
-sram_mem[1024 + 25] = WHITE;
-sram_mem[1024 + 26] = WHITE;
-sram_mem[1024 + 27] = WHITE;
-sram_mem[1024 + 28] = WHITE;
-sram_mem[1024 + 29] = WHITE;
-sram_mem[1024 + 30] = WHITE;
-sram_mem[1024 + 31] = WHITE;
-sram_mem[1024 + 32] = WHITE;
-sram_mem[1024 + 33] = NUMBER(3);
-sram_mem[1024 + 34] = WHITE;
-sram_mem[1024 + 35] = WHITE;
-sram_mem[1024 + 36] = WHITE;
-sram_mem[1024 + 37] = WHITE;
-sram_mem[1024 + 38] = WHITE;
-sram_mem[1024 + 39] = WHITE;
-sram_mem[1024 + 40] = WHITE;
-sram_mem[1024 + 41] = WHITE;
-sram_mem[1024 + 42] = WHITE;
-sram_mem[1024 + 43] = WHITE;
-sram_mem[1024 + 44] = WHITE;
-sram_mem[1024 + 45] = WHITE;
-sram_mem[1024 + 46] = WHITE;
-sram_mem[1024 + 47] = WHITE;
-sram_mem[1024 + 48] = WHITE;
-sram_mem[1024 + 49] = WHITE;
-sram_mem[1024 + 50] = WHITE;
-sram_mem[1024 + 51] = WHITE;
-sram_mem[1024 + 52] = NUMBER(3);
-sram_mem[1024 + 53] = WHITE;
-sram_mem[1024 + 54] = WHITE;
-sram_mem[1024 + 55] = WHITE;
-sram_mem[1024 + 56] = WHITE;
-sram_mem[1024 + 57] = WHITE;
-sram_mem[1024 + 58] = WHITE;
-sram_mem[1024 + 59] = NUMBER(4);
-sram_mem[1024 + 60] = WHITE;
-sram_mem[1024 + 61] = WHITE;
-sram_mem[1024 + 62] = NUMBER(4);
-sram_mem[1024 + 63] = WHITE;
-sram_mem[1024 + 64] = WHITE;
-sram_mem[1024 + 65] = WHITE;
-sram_mem[1024 + 66] = WHITE;
-sram_mem[1024 + 67] = WHITE;
-sram_mem[1024 + 68] = WHITE;
-sram_mem[1024 + 69] = WHITE;
-sram_mem[1024 + 70] = WHITE;
-sram_mem[1024 + 71] = WHITE;
-sram_mem[1024 + 72] = NUMBER(4);
-sram_mem[1024 + 73] = WHITE;
-sram_mem[1024 + 74] = WHITE;
-sram_mem[1024 + 75] = WHITE;
-sram_mem[1024 + 76] = WHITE;
-sram_mem[1024 + 77] = WHITE;
-sram_mem[1024 + 78] = WHITE;
-sram_mem[1024 + 79] = WHITE;
-sram_mem[1024 + 80] = NUMBER(3);
-sram_mem[1024 + 81] = WHITE;
-sram_mem[1024 + 82] = WHITE;
-sram_mem[1024 + 83] = WHITE;
-sram_mem[1024 + 84] = WHITE;
-sram_mem[1024 + 85] = NUMBER(5);
-sram_mem[1024 + 86] = WHITE;
-sram_mem[1024 + 87] = WHITE;
-sram_mem[1024 + 88] = WHITE;
-sram_mem[1024 + 89] = WHITE;
-sram_mem[1024 + 90] = WHITE;
-sram_mem[1024 + 91] = WHITE;
-sram_mem[1024 + 92] = WHITE;
-sram_mem[1024 + 93] = WHITE;
-sram_mem[1024 + 94] = WHITE;
-sram_mem[1024 + 95] = WHITE;
-sram_mem[1024 + 96] = WHITE;
-sram_mem[1024 + 97] = WHITE;
-sram_mem[1024 + 98] = WHITE;
-sram_mem[1024 + 99] = WHITE;
-sram_mem[1024 + 100] = WHITE;
-sram_mem[1024 + 101] = WHITE;
-sram_mem[1024 + 102] = WHITE;
-sram_mem[1024 + 103] = WHITE;
-sram_mem[1024 + 104] = NUMBER(3);
-sram_mem[1024 + 105] = WHITE;
-sram_mem[1024 + 106] = NUMBER(2);
-sram_mem[1024 + 107] = WHITE;
-sram_mem[1024 + 108] = NUMBER(3);
-sram_mem[1024 + 109] = WHITE;
-sram_mem[1024 + 110] = WHITE;
-sram_mem[1024 + 111] = WHITE;
-sram_mem[1024 + 112] = WHITE;
-sram_mem[1024 + 113] = WHITE;
-sram_mem[1024 + 114] = WHITE;
-sram_mem[1024 + 115] = WHITE;
-sram_mem[1024 + 116] = WHITE;
-sram_mem[1024 + 117] = WHITE;
-sram_mem[1024 + 118] = WHITE;
-sram_mem[1024 + 119] = WHITE;
-sram_mem[1024 + 120] = WHITE;
-sram_mem[1024 + 121] = WHITE;
-sram_mem[1024 + 122] = WHITE;
-sram_mem[1024 + 123] = WHITE;
-sram_mem[1024 + 124] = WHITE;
-sram_mem[1024 + 125] = WHITE;
-sram_mem[1024 + 126] = WHITE;
-sram_mem[1024 + 127] = NUMBER(4);
-sram_mem[1024 + 128] = WHITE;
-sram_mem[1024 + 129] = NUMBER(3);
-sram_mem[1024 + 130] = WHITE;
-sram_mem[1024 + 131] = WHITE;
-sram_mem[1024 + 132] = WHITE;
-sram_mem[1024 + 133] = NUMBER(6);
-sram_mem[1024 + 134] = WHITE;
-sram_mem[1024 + 135] = NUMBER(2);
-sram_mem[1024 + 136] = WHITE;
-sram_mem[1024 + 137] = WHITE;
-sram_mem[1024 + 138] = WHITE;
-sram_mem[1024 + 139] = WHITE;
-sram_mem[1024 + 140] = WHITE;
-sram_mem[1024 + 141] = NUMBER(4);
-sram_mem[1024 + 142] = WHITE;
-sram_mem[1024 + 143] = WHITE;
-sram_mem[1024 + 144] = WHITE;
-sram_mem[1024 + 145] = NUMBER(1);
-sram_mem[1024 + 146] = WHITE;
-sram_mem[1024 + 147] = WHITE;
-sram_mem[1024 + 148] = WHITE;
-sram_mem[1024 + 149] = WHITE;
-sram_mem[1024 + 150] = WHITE;
-sram_mem[1024 + 151] = WHITE;
-sram_mem[1024 + 152] = WHITE;
-sram_mem[1024 + 153] = NUMBER(5);
-sram_mem[1024 + 154] = WHITE;
-sram_mem[1024 + 155] = WHITE;
-sram_mem[1024 + 156] = WHITE;
-sram_mem[1024 + 157] = WHITE;
-sram_mem[1024 + 158] = NUMBER(3);
-sram_mem[1024 + 159] = WHITE;
-sram_mem[1024 + 160] = WHITE;
-sram_mem[1024 + 161] = WHITE;
-sram_mem[1024 + 162] = WHITE;
-sram_mem[1024 + 163] = WHITE;
-sram_mem[1024 + 164] = WHITE;
-sram_mem[1024 + 165] = WHITE;
-sram_mem[1024 + 166] = WHITE;
-sram_mem[1024 + 167] = WHITE;
-sram_mem[1024 + 168] = WHITE;
-sram_mem[1024 + 169] = WHITE;
-sram_mem[1024 + 170] = WHITE;
-sram_mem[1024 + 171] = WHITE;
-sram_mem[1024 + 172] = WHITE;
-sram_mem[1024 + 173] = WHITE;
-sram_mem[1024 + 174] = WHITE;
-sram_mem[1024 + 175] = WHITE;
-sram_mem[1024 + 176] = NUMBER(3);
-sram_mem[1024 + 177] = WHITE;
-sram_mem[1024 + 178] = NUMBER(2);
-sram_mem[1024 + 179] = WHITE;
-sram_mem[1024 + 180] = NUMBER(2);
-sram_mem[1024 + 181] = WHITE;
-sram_mem[1024 + 182] = WHITE;
-sram_mem[1024 + 183] = NUMBER(2);
-sram_mem[1024 + 184] = WHITE;
-sram_mem[1024 + 185] = WHITE;
-sram_mem[1024 + 186] = NUMBER(4);
-sram_mem[1024 + 187] = WHITE;
-sram_mem[1024 + 188] = NUMBER(1);
-sram_mem[1024 + 189] = WHITE;
-sram_mem[1024 + 190] = WHITE;
-sram_mem[1024 + 191] = WHITE;
-sram_mem[1024 + 192] = NUMBER(1);
-sram_mem[1024 + 193] = WHITE;
-sram_mem[1024 + 194] = WHITE;
-sram_mem[1024 + 195] = WHITE;
-sram_mem[1024 + 196] = WHITE;
-sram_mem[1024 + 197] = WHITE;
-sram_mem[1024 + 198] = WHITE;
-sram_mem[1024 + 199] = WHITE;
-sram_mem[1024 + 200] = WHITE;
-sram_mem[1024 + 201] = WHITE;
-sram_mem[1024 + 202] = WHITE;
-sram_mem[1024 + 203] = WHITE;
-sram_mem[1024 + 204] = WHITE;
-sram_mem[1024 + 205] = WHITE;
-sram_mem[1024 + 206] = WHITE;
-sram_mem[1024 + 207] = WHITE;
-sram_mem[1024 + 208] = WHITE;
-sram_mem[1024 + 209] = WHITE;
-sram_mem[1024 + 210] = WHITE;
-sram_mem[1024 + 211] = WHITE;
-sram_mem[1024 + 212] = NUMBER(2);
-sram_mem[1024 + 213] = WHITE;
-sram_mem[1024 + 214] = WHITE;
-sram_mem[1024 + 215] = NUMBER(2);
-sram_mem[1024 + 216] = WHITE;
-sram_mem[1024 + 217] = WHITE;
-sram_mem[1024 + 218] = NUMBER(2);
-sram_mem[1024 + 219] = WHITE;
-sram_mem[1024 + 220] = WHITE;
-sram_mem[1024 + 221] = WHITE;
-sram_mem[1024 + 222] = NUMBER(3);
-sram_mem[1024 + 223] = WHITE;
-sram_mem[1024 + 224] = NUMBER(3);
+  
+    sram_mem[2] = 7;
+    sram_mem[3] = 7;
+    
+      
+        sram_mem[1024] =
+        WHITE;
+      
+        sram_mem[1025] =
+        WHITE;
+      
+        sram_mem[1026] =
+        WHITE;
+      
+        sram_mem[1027] =
+        WHITE;
+      
+        sram_mem[1028] =
+        WHITE;
+      
+        sram_mem[1029] =
+        WHITE;
+      
+        sram_mem[1030] =
+        NUMBER(1);
+      
+    
+      
+        sram_mem[1031] =
+        WHITE;
+      
+        sram_mem[1032] =
+        WHITE;
+      
+        sram_mem[1033] =
+        WHITE;
+      
+        sram_mem[1034] =
+        WHITE;
+      
+        sram_mem[1035] =
+        NUMBER(1);
+      
+        sram_mem[1036] =
+        WHITE;
+      
+        sram_mem[1037] =
+        WHITE;
+      
+    
+      
+        sram_mem[1038] =
+        WHITE;
+      
+        sram_mem[1039] =
+        WHITE;
+      
+        sram_mem[1040] =
+        WHITE;
+      
+        sram_mem[1041] =
+        WHITE;
+      
+        sram_mem[1042] =
+        WHITE;
+      
+        sram_mem[1043] =
+        WHITE;
+      
+        sram_mem[1044] =
+        NUMBER(2);
+      
+    
+      
+        sram_mem[1045] =
+        NUMBER(1);
+      
+        sram_mem[1046] =
+        WHITE;
+      
+        sram_mem[1047] =
+        WHITE;
+      
+        sram_mem[1048] =
+        WHITE;
+      
+        sram_mem[1049] =
+        WHITE;
+      
+        sram_mem[1050] =
+        WHITE;
+      
+        sram_mem[1051] =
+        WHITE;
+      
+    
+      
+        sram_mem[1052] =
+        WHITE;
+      
+        sram_mem[1053] =
+        WHITE;
+      
+        sram_mem[1054] =
+        WHITE;
+      
+        sram_mem[1055] =
+        WHITE;
+      
+        sram_mem[1056] =
+        WHITE;
+      
+        sram_mem[1057] =
+        WHITE;
+      
+        sram_mem[1058] =
+        WHITE;
+      
+    
+      
+        sram_mem[1059] =
+        WHITE;
+      
+        sram_mem[1060] =
+        WHITE;
+      
+        sram_mem[1061] =
+        WHITE;
+      
+        sram_mem[1062] =
+        WHITE;
+      
+        sram_mem[1063] =
+        WHITE;
+      
+        sram_mem[1064] =
+        WHITE;
+      
+        sram_mem[1065] =
+        WHITE;
+      
+    
+      
+        sram_mem[1066] =
+        WHITE;
+      
+        sram_mem[1067] =
+        WHITE;
+      
+        sram_mem[1068] =
+        NUMBER(3);
+      
+        sram_mem[1069] =
+        WHITE;
+      
+        sram_mem[1070] =
+        NUMBER(1);
+      
+        sram_mem[1071] =
+        WHITE;
+      
+        sram_mem[1072] =
+        NUMBER(11);
+      
+    
+  
+    sram_mem[4] = 7;
+    sram_mem[5] = 7;
+    
+      
+        sram_mem[2048] =
+        NUMBER(2);
+      
+        sram_mem[2049] =
+        WHITE;
+      
+        sram_mem[2050] =
+        WHITE;
+      
+        sram_mem[2051] =
+        NUMBER(7);
+      
+        sram_mem[2052] =
+        WHITE;
+      
+        sram_mem[2053] =
+        WHITE;
+      
+        sram_mem[2054] =
+        NUMBER(2);
+      
+    
+      
+        sram_mem[2055] =
+        WHITE;
+      
+        sram_mem[2056] =
+        WHITE;
+      
+        sram_mem[2057] =
+        WHITE;
+      
+        sram_mem[2058] =
+        WHITE;
+      
+        sram_mem[2059] =
+        WHITE;
+      
+        sram_mem[2060] =
+        WHITE;
+      
+        sram_mem[2061] =
+        WHITE;
+      
+    
+      
+        sram_mem[2062] =
+        NUMBER(2);
+      
+        sram_mem[2063] =
+        WHITE;
+      
+        sram_mem[2064] =
+        WHITE;
+      
+        sram_mem[2065] =
+        WHITE;
+      
+        sram_mem[2066] =
+        WHITE;
+      
+        sram_mem[2067] =
+        WHITE;
+      
+        sram_mem[2068] =
+        WHITE;
+      
+    
+      
+        sram_mem[2069] =
+        WHITE;
+      
+        sram_mem[2070] =
+        WHITE;
+      
+        sram_mem[2071] =
+        NUMBER(3);
+      
+        sram_mem[2072] =
+        WHITE;
+      
+        sram_mem[2073] =
+        WHITE;
+      
+        sram_mem[2074] =
+        WHITE;
+      
+        sram_mem[2075] =
+        WHITE;
+      
+    
+      
+        sram_mem[2076] =
+        NUMBER(2);
+      
+        sram_mem[2077] =
+        WHITE;
+      
+        sram_mem[2078] =
+        WHITE;
+      
+        sram_mem[2079] =
+        WHITE;
+      
+        sram_mem[2080] =
+        WHITE;
+      
+        sram_mem[2081] =
+        WHITE;
+      
+        sram_mem[2082] =
+        WHITE;
+      
+    
+      
+        sram_mem[2083] =
+        WHITE;
+      
+        sram_mem[2084] =
+        WHITE;
+      
+        sram_mem[2085] =
+        WHITE;
+      
+        sram_mem[2086] =
+        WHITE;
+      
+        sram_mem[2087] =
+        NUMBER(1);
+      
+        sram_mem[2088] =
+        WHITE;
+      
+        sram_mem[2089] =
+        WHITE;
+      
+    
+      
+        sram_mem[2090] =
+        WHITE;
+      
+        sram_mem[2091] =
+        WHITE;
+      
+        sram_mem[2092] =
+        WHITE;
+      
+        sram_mem[2093] =
+        WHITE;
+      
+        sram_mem[2094] =
+        WHITE;
+      
+        sram_mem[2095] =
+        WHITE;
+      
+        sram_mem[2096] =
+        NUMBER(1);
+      
+    
+  
+    sram_mem[6] = 7;
+    sram_mem[7] = 7;
+    
+      
+        sram_mem[3072] =
+        NUMBER(2);
+      
+        sram_mem[3073] =
+        WHITE;
+      
+        sram_mem[3074] =
+        WHITE;
+      
+        sram_mem[3075] =
+        NUMBER(2);
+      
+        sram_mem[3076] =
+        WHITE;
+      
+        sram_mem[3077] =
+        NUMBER(2);
+      
+        sram_mem[3078] =
+        WHITE;
+      
+    
+      
+        sram_mem[3079] =
+        WHITE;
+      
+        sram_mem[3080] =
+        WHITE;
+      
+        sram_mem[3081] =
+        WHITE;
+      
+        sram_mem[3082] =
+        WHITE;
+      
+        sram_mem[3083] =
+        WHITE;
+      
+        sram_mem[3084] =
+        WHITE;
+      
+        sram_mem[3085] =
+        WHITE;
+      
+    
+      
+        sram_mem[3086] =
+        NUMBER(3);
+      
+        sram_mem[3087] =
+        WHITE;
+      
+        sram_mem[3088] =
+        WHITE;
+      
+        sram_mem[3089] =
+        WHITE;
+      
+        sram_mem[3090] =
+        NUMBER(3);
+      
+        sram_mem[3091] =
+        WHITE;
+      
+        sram_mem[3092] =
+        NUMBER(3);
+      
+    
+      
+        sram_mem[3093] =
+        WHITE;
+      
+        sram_mem[3094] =
+        WHITE;
+      
+        sram_mem[3095] =
+        WHITE;
+      
+        sram_mem[3096] =
+        WHITE;
+      
+        sram_mem[3097] =
+        WHITE;
+      
+        sram_mem[3098] =
+        WHITE;
+      
+        sram_mem[3099] =
+        WHITE;
+      
+    
+      
+        sram_mem[3100] =
+        WHITE;
+      
+        sram_mem[3101] =
+        WHITE;
+      
+        sram_mem[3102] =
+        WHITE;
+      
+        sram_mem[3103] =
+        WHITE;
+      
+        sram_mem[3104] =
+        WHITE;
+      
+        sram_mem[3105] =
+        WHITE;
+      
+        sram_mem[3106] =
+        WHITE;
+      
+    
+      
+        sram_mem[3107] =
+        WHITE;
+      
+        sram_mem[3108] =
+        NUMBER(4);
+      
+        sram_mem[3109] =
+        WHITE;
+      
+        sram_mem[3110] =
+        WHITE;
+      
+        sram_mem[3111] =
+        WHITE;
+      
+        sram_mem[3112] =
+        WHITE;
+      
+        sram_mem[3113] =
+        WHITE;
+      
+    
+      
+        sram_mem[3114] =
+        WHITE;
+      
+        sram_mem[3115] =
+        WHITE;
+      
+        sram_mem[3116] =
+        WHITE;
+      
+        sram_mem[3117] =
+        WHITE;
+      
+        sram_mem[3118] =
+        NUMBER(1);
+      
+        sram_mem[3119] =
+        WHITE;
+      
+        sram_mem[3120] =
+        NUMBER(1);
+      
+    
+  
+    sram_mem[8] = 7;
+    sram_mem[9] = 7;
+    
+      
+        sram_mem[4096] =
+        NUMBER(3);
+      
+        sram_mem[4097] =
+        WHITE;
+      
+        sram_mem[4098] =
+        NUMBER(3);
+      
+        sram_mem[4099] =
+        WHITE;
+      
+        sram_mem[4100] =
+        WHITE;
+      
+        sram_mem[4101] =
+        WHITE;
+      
+        sram_mem[4102] =
+        WHITE;
+      
+    
+      
+        sram_mem[4103] =
+        WHITE;
+      
+        sram_mem[4104] =
+        WHITE;
+      
+        sram_mem[4105] =
+        WHITE;
+      
+        sram_mem[4106] =
+        WHITE;
+      
+        sram_mem[4107] =
+        WHITE;
+      
+        sram_mem[4108] =
+        WHITE;
+      
+        sram_mem[4109] =
+        WHITE;
+      
+    
+      
+        sram_mem[4110] =
+        WHITE;
+      
+        sram_mem[4111] =
+        WHITE;
+      
+        sram_mem[4112] =
+        NUMBER(4);
+      
+        sram_mem[4113] =
+        WHITE;
+      
+        sram_mem[4114] =
+        WHITE;
+      
+        sram_mem[4115] =
+        NUMBER(4);
+      
+        sram_mem[4116] =
+        WHITE;
+      
+    
+      
+        sram_mem[4117] =
+        WHITE;
+      
+        sram_mem[4118] =
+        NUMBER(2);
+      
+        sram_mem[4119] =
+        WHITE;
+      
+        sram_mem[4120] =
+        WHITE;
+      
+        sram_mem[4121] =
+        WHITE;
+      
+        sram_mem[4122] =
+        WHITE;
+      
+        sram_mem[4123] =
+        WHITE;
+      
+    
+      
+        sram_mem[4124] =
+        WHITE;
+      
+        sram_mem[4125] =
+        WHITE;
+      
+        sram_mem[4126] =
+        WHITE;
+      
+        sram_mem[4127] =
+        WHITE;
+      
+        sram_mem[4128] =
+        WHITE;
+      
+        sram_mem[4129] =
+        NUMBER(2);
+      
+        sram_mem[4130] =
+        WHITE;
+      
+    
+      
+        sram_mem[4131] =
+        WHITE;
+      
+        sram_mem[4132] =
+        WHITE;
+      
+        sram_mem[4133] =
+        WHITE;
+      
+        sram_mem[4134] =
+        WHITE;
+      
+        sram_mem[4135] =
+        WHITE;
+      
+        sram_mem[4136] =
+        WHITE;
+      
+        sram_mem[4137] =
+        WHITE;
+      
+    
+      
+        sram_mem[4138] =
+        NUMBER(4);
+      
+        sram_mem[4139] =
+        WHITE;
+      
+        sram_mem[4140] =
+        WHITE;
+      
+        sram_mem[4141] =
+        WHITE;
+      
+        sram_mem[4142] =
+        WHITE;
+      
+        sram_mem[4143] =
+        NUMBER(2);
+      
+        sram_mem[4144] =
+        WHITE;
+      
+    
+  
+    sram_mem[10] = 7;
+    sram_mem[11] = 7;
+    
+      
+        sram_mem[5120] =
+        NUMBER(2);
+      
+        sram_mem[5121] =
+        WHITE;
+      
+        sram_mem[5122] =
+        NUMBER(3);
+      
+        sram_mem[5123] =
+        WHITE;
+      
+        sram_mem[5124] =
+        WHITE;
+      
+        sram_mem[5125] =
+        WHITE;
+      
+        sram_mem[5126] =
+        NUMBER(2);
+      
+    
+      
+        sram_mem[5127] =
+        WHITE;
+      
+        sram_mem[5128] =
+        WHITE;
+      
+        sram_mem[5129] =
+        WHITE;
+      
+        sram_mem[5130] =
+        WHITE;
+      
+        sram_mem[5131] =
+        WHITE;
+      
+        sram_mem[5132] =
+        WHITE;
+      
+        sram_mem[5133] =
+        WHITE;
+      
+    
+      
+        sram_mem[5134] =
+        WHITE;
+      
+        sram_mem[5135] =
+        NUMBER(4);
+      
+        sram_mem[5136] =
+        WHITE;
+      
+        sram_mem[5137] =
+        WHITE;
+      
+        sram_mem[5138] =
+        NUMBER(3);
+      
+        sram_mem[5139] =
+        WHITE;
+      
+        sram_mem[5140] =
+        WHITE;
+      
+    
+      
+        sram_mem[5141] =
+        WHITE;
+      
+        sram_mem[5142] =
+        WHITE;
+      
+        sram_mem[5143] =
+        WHITE;
+      
+        sram_mem[5144] =
+        WHITE;
+      
+        sram_mem[5145] =
+        WHITE;
+      
+        sram_mem[5146] =
+        WHITE;
+      
+        sram_mem[5147] =
+        WHITE;
+      
+    
+      
+        sram_mem[5148] =
+        NUMBER(3);
+      
+        sram_mem[5149] =
+        WHITE;
+      
+        sram_mem[5150] =
+        WHITE;
+      
+        sram_mem[5151] =
+        WHITE;
+      
+        sram_mem[5152] =
+        NUMBER(3);
+      
+        sram_mem[5153] =
+        WHITE;
+      
+        sram_mem[5154] =
+        WHITE;
+      
+    
+      
+        sram_mem[5155] =
+        WHITE;
+      
+        sram_mem[5156] =
+        WHITE;
+      
+        sram_mem[5157] =
+        WHITE;
+      
+        sram_mem[5158] =
+        WHITE;
+      
+        sram_mem[5159] =
+        WHITE;
+      
+        sram_mem[5160] =
+        WHITE;
+      
+        sram_mem[5161] =
+        WHITE;
+      
+    
+      
+        sram_mem[5162] =
+        WHITE;
+      
+        sram_mem[5163] =
+        WHITE;
+      
+        sram_mem[5164] =
+        NUMBER(1);
+      
+        sram_mem[5165] =
+        WHITE;
+      
+        sram_mem[5166] =
+        WHITE;
+      
+        sram_mem[5167] =
+        WHITE;
+      
+        sram_mem[5168] =
+        WHITE;
+      
+    
+  
+    sram_mem[12] = 7;
+    sram_mem[13] = 7;
+    
+      
+        sram_mem[6144] =
+        NUMBER(2);
+      
+        sram_mem[6145] =
+        WHITE;
+      
+        sram_mem[6146] =
+        WHITE;
+      
+        sram_mem[6147] =
+        NUMBER(2);
+      
+        sram_mem[6148] =
+        WHITE;
+      
+        sram_mem[6149] =
+        NUMBER(2);
+      
+        sram_mem[6150] =
+        WHITE;
+      
+    
+      
+        sram_mem[6151] =
+        WHITE;
+      
+        sram_mem[6152] =
+        WHITE;
+      
+        sram_mem[6153] =
+        WHITE;
+      
+        sram_mem[6154] =
+        WHITE;
+      
+        sram_mem[6155] =
+        WHITE;
+      
+        sram_mem[6156] =
+        WHITE;
+      
+        sram_mem[6157] =
+        WHITE;
+      
+    
+      
+        sram_mem[6158] =
+        NUMBER(5);
+      
+        sram_mem[6159] =
+        WHITE;
+      
+        sram_mem[6160] =
+        WHITE;
+      
+        sram_mem[6161] =
+        WHITE;
+      
+        sram_mem[6162] =
+        NUMBER(2);
+      
+        sram_mem[6163] =
+        WHITE;
+      
+        sram_mem[6164] =
+        WHITE;
+      
+    
+      
+        sram_mem[6165] =
+        WHITE;
+      
+        sram_mem[6166] =
+        WHITE;
+      
+        sram_mem[6167] =
+        WHITE;
+      
+        sram_mem[6168] =
+        WHITE;
+      
+        sram_mem[6169] =
+        WHITE;
+      
+        sram_mem[6170] =
+        WHITE;
+      
+        sram_mem[6171] =
+        WHITE;
+      
+    
+      
+        sram_mem[6172] =
+        WHITE;
+      
+        sram_mem[6173] =
+        WHITE;
+      
+        sram_mem[6174] =
+        WHITE;
+      
+        sram_mem[6175] =
+        NUMBER(3);
+      
+        sram_mem[6176] =
+        WHITE;
+      
+        sram_mem[6177] =
+        WHITE;
+      
+        sram_mem[6178] =
+        WHITE;
+      
+    
+      
+        sram_mem[6179] =
+        NUMBER(2);
+      
+        sram_mem[6180] =
+        WHITE;
+      
+        sram_mem[6181] =
+        NUMBER(1);
+      
+        sram_mem[6182] =
+        WHITE;
+      
+        sram_mem[6183] =
+        WHITE;
+      
+        sram_mem[6184] =
+        WHITE;
+      
+        sram_mem[6185] =
+        WHITE;
+      
+    
+      
+        sram_mem[6186] =
+        WHITE;
+      
+        sram_mem[6187] =
+        WHITE;
+      
+        sram_mem[6188] =
+        WHITE;
+      
+        sram_mem[6189] =
+        WHITE;
+      
+        sram_mem[6190] =
+        NUMBER(2);
+      
+        sram_mem[6191] =
+        WHITE;
+      
+        sram_mem[6192] =
+        WHITE;
+      
+    
+  
+    sram_mem[14] = 10;
+    sram_mem[15] = 10;
+    
+      
+        sram_mem[7168] =
+        NUMBER(3);
+      
+        sram_mem[7169] =
+        WHITE;
+      
+        sram_mem[7170] =
+        NUMBER(3);
+      
+        sram_mem[7171] =
+        WHITE;
+      
+        sram_mem[7172] =
+        WHITE;
+      
+        sram_mem[7173] =
+        NUMBER(3);
+      
+        sram_mem[7174] =
+        WHITE;
+      
+        sram_mem[7175] =
+        NUMBER(2);
+      
+        sram_mem[7176] =
+        WHITE;
+      
+        sram_mem[7177] =
+        NUMBER(4);
+      
+    
+      
+        sram_mem[7178] =
+        WHITE;
+      
+        sram_mem[7179] =
+        WHITE;
+      
+        sram_mem[7180] =
+        WHITE;
+      
+        sram_mem[7181] =
+        WHITE;
+      
+        sram_mem[7182] =
+        WHITE;
+      
+        sram_mem[7183] =
+        WHITE;
+      
+        sram_mem[7184] =
+        WHITE;
+      
+        sram_mem[7185] =
+        WHITE;
+      
+        sram_mem[7186] =
+        WHITE;
+      
+        sram_mem[7187] =
+        WHITE;
+      
+    
+      
+        sram_mem[7188] =
+        WHITE;
+      
+        sram_mem[7189] =
+        WHITE;
+      
+        sram_mem[7190] =
+        NUMBER(3);
+      
+        sram_mem[7191] =
+        WHITE;
+      
+        sram_mem[7192] =
+        WHITE;
+      
+        sram_mem[7193] =
+        WHITE;
+      
+        sram_mem[7194] =
+        WHITE;
+      
+        sram_mem[7195] =
+        WHITE;
+      
+        sram_mem[7196] =
+        WHITE;
+      
+        sram_mem[7197] =
+        WHITE;
+      
+    
+      
+        sram_mem[7198] =
+        WHITE;
+      
+        sram_mem[7199] =
+        WHITE;
+      
+        sram_mem[7200] =
+        WHITE;
+      
+        sram_mem[7201] =
+        WHITE;
+      
+        sram_mem[7202] =
+        NUMBER(2);
+      
+        sram_mem[7203] =
+        WHITE;
+      
+        sram_mem[7204] =
+        NUMBER(7);
+      
+        sram_mem[7205] =
+        WHITE;
+      
+        sram_mem[7206] =
+        WHITE;
+      
+        sram_mem[7207] =
+        WHITE;
+      
+    
+      
+        sram_mem[7208] =
+        NUMBER(1);
+      
+        sram_mem[7209] =
+        WHITE;
+      
+        sram_mem[7210] =
+        WHITE;
+      
+        sram_mem[7211] =
+        WHITE;
+      
+        sram_mem[7212] =
+        WHITE;
+      
+        sram_mem[7213] =
+        WHITE;
+      
+        sram_mem[7214] =
+        WHITE;
+      
+        sram_mem[7215] =
+        WHITE;
+      
+        sram_mem[7216] =
+        WHITE;
+      
+        sram_mem[7217] =
+        WHITE;
+      
+    
+      
+        sram_mem[7218] =
+        WHITE;
+      
+        sram_mem[7219] =
+        WHITE;
+      
+        sram_mem[7220] =
+        WHITE;
+      
+        sram_mem[7221] =
+        WHITE;
+      
+        sram_mem[7222] =
+        WHITE;
+      
+        sram_mem[7223] =
+        NUMBER(2);
+      
+        sram_mem[7224] =
+        WHITE;
+      
+        sram_mem[7225] =
+        WHITE;
+      
+        sram_mem[7226] =
+        WHITE;
+      
+        sram_mem[7227] =
+        WHITE;
+      
+    
+      
+        sram_mem[7228] =
+        NUMBER(4);
+      
+        sram_mem[7229] =
+        WHITE;
+      
+        sram_mem[7230] =
+        NUMBER(4);
+      
+        sram_mem[7231] =
+        WHITE;
+      
+        sram_mem[7232] =
+        WHITE;
+      
+        sram_mem[7233] =
+        WHITE;
+      
+        sram_mem[7234] =
+        WHITE;
+      
+        sram_mem[7235] =
+        WHITE;
+      
+        sram_mem[7236] =
+        WHITE;
+      
+        sram_mem[7237] =
+        WHITE;
+      
+    
+      
+        sram_mem[7238] =
+        WHITE;
+      
+        sram_mem[7239] =
+        WHITE;
+      
+        sram_mem[7240] =
+        WHITE;
+      
+        sram_mem[7241] =
+        WHITE;
+      
+        sram_mem[7242] =
+        WHITE;
+      
+        sram_mem[7243] =
+        WHITE;
+      
+        sram_mem[7244] =
+        NUMBER(2);
+      
+        sram_mem[7245] =
+        WHITE;
+      
+        sram_mem[7246] =
+        WHITE;
+      
+        sram_mem[7247] =
+        WHITE;
+      
+    
+      
+        sram_mem[7248] =
+        WHITE;
+      
+        sram_mem[7249] =
+        WHITE;
+      
+        sram_mem[7250] =
+        WHITE;
+      
+        sram_mem[7251] =
+        WHITE;
+      
+        sram_mem[7252] =
+        WHITE;
+      
+        sram_mem[7253] =
+        WHITE;
+      
+        sram_mem[7254] =
+        WHITE;
+      
+        sram_mem[7255] =
+        WHITE;
+      
+        sram_mem[7256] =
+        WHITE;
+      
+        sram_mem[7257] =
+        WHITE;
+      
+    
+      
+        sram_mem[7258] =
+        WHITE;
+      
+        sram_mem[7259] =
+        WHITE;
+      
+        sram_mem[7260] =
+        WHITE;
+      
+        sram_mem[7261] =
+        NUMBER(2);
+      
+        sram_mem[7262] =
+        WHITE;
+      
+        sram_mem[7263] =
+        WHITE;
+      
+        sram_mem[7264] =
+        WHITE;
+      
+        sram_mem[7265] =
+        WHITE;
+      
+        sram_mem[7266] =
+        NUMBER(1);
+      
+        sram_mem[7267] =
+        WHITE;
+      
+    
+  
+    sram_mem[16] = 10;
+    sram_mem[17] = 10;
+    
+      
+        sram_mem[8192] =
+        WHITE;
+      
+        sram_mem[8193] =
+        WHITE;
+      
+        sram_mem[8194] =
+        WHITE;
+      
+        sram_mem[8195] =
+        NUMBER(4);
+      
+        sram_mem[8196] =
+        WHITE;
+      
+        sram_mem[8197] =
+        WHITE;
+      
+        sram_mem[8198] =
+        NUMBER(2);
+      
+        sram_mem[8199] =
+        WHITE;
+      
+        sram_mem[8200] =
+        NUMBER(4);
+      
+        sram_mem[8201] =
+        WHITE;
+      
+    
+      
+        sram_mem[8202] =
+        NUMBER(3);
+      
+        sram_mem[8203] =
+        WHITE;
+      
+        sram_mem[8204] =
+        WHITE;
+      
+        sram_mem[8205] =
+        WHITE;
+      
+        sram_mem[8206] =
+        WHITE;
+      
+        sram_mem[8207] =
+        WHITE;
+      
+        sram_mem[8208] =
+        WHITE;
+      
+        sram_mem[8209] =
+        WHITE;
+      
+        sram_mem[8210] =
+        WHITE;
+      
+        sram_mem[8211] =
+        WHITE;
+      
+    
+      
+        sram_mem[8212] =
+        WHITE;
+      
+        sram_mem[8213] =
+        WHITE;
+      
+        sram_mem[8214] =
+        WHITE;
+      
+        sram_mem[8215] =
+        WHITE;
+      
+        sram_mem[8216] =
+        WHITE;
+      
+        sram_mem[8217] =
+        WHITE;
+      
+        sram_mem[8218] =
+        WHITE;
+      
+        sram_mem[8219] =
+        WHITE;
+      
+        sram_mem[8220] =
+        WHITE;
+      
+        sram_mem[8221] =
+        WHITE;
+      
+    
+      
+        sram_mem[8222] =
+        NUMBER(5);
+      
+        sram_mem[8223] =
+        WHITE;
+      
+        sram_mem[8224] =
+        NUMBER(1);
+      
+        sram_mem[8225] =
+        WHITE;
+      
+        sram_mem[8226] =
+        WHITE;
+      
+        sram_mem[8227] =
+        WHITE;
+      
+        sram_mem[8228] =
+        NUMBER(3);
+      
+        sram_mem[8229] =
+        WHITE;
+      
+        sram_mem[8230] =
+        WHITE;
+      
+        sram_mem[8231] =
+        WHITE;
+      
+    
+      
+        sram_mem[8232] =
+        WHITE;
+      
+        sram_mem[8233] =
+        WHITE;
+      
+        sram_mem[8234] =
+        WHITE;
+      
+        sram_mem[8235] =
+        NUMBER(1);
+      
+        sram_mem[8236] =
+        WHITE;
+      
+        sram_mem[8237] =
+        NUMBER(4);
+      
+        sram_mem[8238] =
+        WHITE;
+      
+        sram_mem[8239] =
+        WHITE;
+      
+        sram_mem[8240] =
+        NUMBER(3);
+      
+        sram_mem[8241] =
+        WHITE;
+      
+    
+      
+        sram_mem[8242] =
+        WHITE;
+      
+        sram_mem[8243] =
+        WHITE;
+      
+        sram_mem[8244] =
+        WHITE;
+      
+        sram_mem[8245] =
+        WHITE;
+      
+        sram_mem[8246] =
+        WHITE;
+      
+        sram_mem[8247] =
+        WHITE;
+      
+        sram_mem[8248] =
+        WHITE;
+      
+        sram_mem[8249] =
+        WHITE;
+      
+        sram_mem[8250] =
+        WHITE;
+      
+        sram_mem[8251] =
+        WHITE;
+      
+    
+      
+        sram_mem[8252] =
+        WHITE;
+      
+        sram_mem[8253] =
+        WHITE;
+      
+        sram_mem[8254] =
+        NUMBER(4);
+      
+        sram_mem[8255] =
+        WHITE;
+      
+        sram_mem[8256] =
+        WHITE;
+      
+        sram_mem[8257] =
+        WHITE;
+      
+        sram_mem[8258] =
+        WHITE;
+      
+        sram_mem[8259] =
+        WHITE;
+      
+        sram_mem[8260] =
+        WHITE;
+      
+        sram_mem[8261] =
+        WHITE;
+      
+    
+      
+        sram_mem[8262] =
+        NUMBER(3);
+      
+        sram_mem[8263] =
+        WHITE;
+      
+        sram_mem[8264] =
+        WHITE;
+      
+        sram_mem[8265] =
+        WHITE;
+      
+        sram_mem[8266] =
+        WHITE;
+      
+        sram_mem[8267] =
+        WHITE;
+      
+        sram_mem[8268] =
+        WHITE;
+      
+        sram_mem[8269] =
+        WHITE;
+      
+        sram_mem[8270] =
+        WHITE;
+      
+        sram_mem[8271] =
+        WHITE;
+      
+    
+      
+        sram_mem[8272] =
+        WHITE;
+      
+        sram_mem[8273] =
+        WHITE;
+      
+        sram_mem[8274] =
+        WHITE;
+      
+        sram_mem[8275] =
+        WHITE;
+      
+        sram_mem[8276] =
+        WHITE;
+      
+        sram_mem[8277] =
+        NUMBER(3);
+      
+        sram_mem[8278] =
+        WHITE;
+      
+        sram_mem[8279] =
+        WHITE;
+      
+        sram_mem[8280] =
+        WHITE;
+      
+        sram_mem[8281] =
+        NUMBER(1);
+      
+    
+      
+        sram_mem[8282] =
+        WHITE;
+      
+        sram_mem[8283] =
+        WHITE;
+      
+        sram_mem[8284] =
+        WHITE;
+      
+        sram_mem[8285] =
+        NUMBER(1);
+      
+        sram_mem[8286] =
+        WHITE;
+      
+        sram_mem[8287] =
+        WHITE;
+      
+        sram_mem[8288] =
+        WHITE;
+      
+        sram_mem[8289] =
+        WHITE;
+      
+        sram_mem[8290] =
+        WHITE;
+      
+        sram_mem[8291] =
+        WHITE;
+      
+    
+  
+    sram_mem[18] = 10;
+    sram_mem[19] = 10;
+    
+      
+        sram_mem[9216] =
+        NUMBER(3);
+      
+        sram_mem[9217] =
+        WHITE;
+      
+        sram_mem[9218] =
+        NUMBER(1);
+      
+        sram_mem[9219] =
+        WHITE;
+      
+        sram_mem[9220] =
+        NUMBER(3);
+      
+        sram_mem[9221] =
+        WHITE;
+      
+        sram_mem[9222] =
+        WHITE;
+      
+        sram_mem[9223] =
+        WHITE;
+      
+        sram_mem[9224] =
+        NUMBER(5);
+      
+        sram_mem[9225] =
+        WHITE;
+      
+    
+      
+        sram_mem[9226] =
+        WHITE;
+      
+        sram_mem[9227] =
+        WHITE;
+      
+        sram_mem[9228] =
+        WHITE;
+      
+        sram_mem[9229] =
+        WHITE;
+      
+        sram_mem[9230] =
+        WHITE;
+      
+        sram_mem[9231] =
+        WHITE;
+      
+        sram_mem[9232] =
+        WHITE;
+      
+        sram_mem[9233] =
+        WHITE;
+      
+        sram_mem[9234] =
+        WHITE;
+      
+        sram_mem[9235] =
+        WHITE;
+      
+    
+      
+        sram_mem[9236] =
+        WHITE;
+      
+        sram_mem[9237] =
+        WHITE;
+      
+        sram_mem[9238] =
+        NUMBER(1);
+      
+        sram_mem[9239] =
+        WHITE;
+      
+        sram_mem[9240] =
+        NUMBER(6);
+      
+        sram_mem[9241] =
+        WHITE;
+      
+        sram_mem[9242] =
+        WHITE;
+      
+        sram_mem[9243] =
+        WHITE;
+      
+        sram_mem[9244] =
+        WHITE;
+      
+        sram_mem[9245] =
+        WHITE;
+      
+    
+      
+        sram_mem[9246] =
+        WHITE;
+      
+        sram_mem[9247] =
+        NUMBER(2);
+      
+        sram_mem[9248] =
+        WHITE;
+      
+        sram_mem[9249] =
+        NUMBER(11);
+      
+        sram_mem[9250] =
+        WHITE;
+      
+        sram_mem[9251] =
+        WHITE;
+      
+        sram_mem[9252] =
+        WHITE;
+      
+        sram_mem[9253] =
+        WHITE;
+      
+        sram_mem[9254] =
+        WHITE;
+      
+        sram_mem[9255] =
+        WHITE;
+      
+    
+      
+        sram_mem[9256] =
+        WHITE;
+      
+        sram_mem[9257] =
+        WHITE;
+      
+        sram_mem[9258] =
+        WHITE;
+      
+        sram_mem[9259] =
+        WHITE;
+      
+        sram_mem[9260] =
+        WHITE;
+      
+        sram_mem[9261] =
+        WHITE;
+      
+        sram_mem[9262] =
+        WHITE;
+      
+        sram_mem[9263] =
+        WHITE;
+      
+        sram_mem[9264] =
+        WHITE;
+      
+        sram_mem[9265] =
+        NUMBER(1);
+      
+    
+      
+        sram_mem[9266] =
+        WHITE;
+      
+        sram_mem[9267] =
+        WHITE;
+      
+        sram_mem[9268] =
+        WHITE;
+      
+        sram_mem[9269] =
+        WHITE;
+      
+        sram_mem[9270] =
+        WHITE;
+      
+        sram_mem[9271] =
+        WHITE;
+      
+        sram_mem[9272] =
+        WHITE;
+      
+        sram_mem[9273] =
+        WHITE;
+      
+        sram_mem[9274] =
+        WHITE;
+      
+        sram_mem[9275] =
+        WHITE;
+      
+    
+      
+        sram_mem[9276] =
+        NUMBER(3);
+      
+        sram_mem[9277] =
+        WHITE;
+      
+        sram_mem[9278] =
+        NUMBER(1);
+      
+        sram_mem[9279] =
+        WHITE;
+      
+        sram_mem[9280] =
+        WHITE;
+      
+        sram_mem[9281] =
+        WHITE;
+      
+        sram_mem[9282] =
+        WHITE;
+      
+        sram_mem[9283] =
+        NUMBER(3);
+      
+        sram_mem[9284] =
+        WHITE;
+      
+        sram_mem[9285] =
+        WHITE;
+      
+    
+      
+        sram_mem[9286] =
+        WHITE;
+      
+        sram_mem[9287] =
+        WHITE;
+      
+        sram_mem[9288] =
+        WHITE;
+      
+        sram_mem[9289] =
+        NUMBER(2);
+      
+        sram_mem[9290] =
+        WHITE;
+      
+        sram_mem[9291] =
+        WHITE;
+      
+        sram_mem[9292] =
+        WHITE;
+      
+        sram_mem[9293] =
+        WHITE;
+      
+        sram_mem[9294] =
+        WHITE;
+      
+        sram_mem[9295] =
+        WHITE;
+      
+    
+      
+        sram_mem[9296] =
+        WHITE;
+      
+        sram_mem[9297] =
+        WHITE;
+      
+        sram_mem[9298] =
+        WHITE;
+      
+        sram_mem[9299] =
+        WHITE;
+      
+        sram_mem[9300] =
+        WHITE;
+      
+        sram_mem[9301] =
+        WHITE;
+      
+        sram_mem[9302] =
+        WHITE;
+      
+        sram_mem[9303] =
+        WHITE;
+      
+        sram_mem[9304] =
+        WHITE;
+      
+        sram_mem[9305] =
+        WHITE;
+      
+    
+      
+        sram_mem[9306] =
+        NUMBER(2);
+      
+        sram_mem[9307] =
+        WHITE;
+      
+        sram_mem[9308] =
+        WHITE;
+      
+        sram_mem[9309] =
+        WHITE;
+      
+        sram_mem[9310] =
+        WHITE;
+      
+        sram_mem[9311] =
+        WHITE;
+      
+        sram_mem[9312] =
+        WHITE;
+      
+        sram_mem[9313] =
+        WHITE;
+      
+        sram_mem[9314] =
+        WHITE;
+      
+        sram_mem[9315] =
+        WHITE;
+      
+    
+  
+    sram_mem[20] = 12;
+    sram_mem[21] = 12;
+    
+      
+        sram_mem[10240] =
+        NUMBER(7);
+      
+        sram_mem[10241] =
+        WHITE;
+      
+        sram_mem[10242] =
+        NUMBER(2);
+      
+        sram_mem[10243] =
+        WHITE;
+      
+        sram_mem[10244] =
+        WHITE;
+      
+        sram_mem[10245] =
+        NUMBER(2);
+      
+        sram_mem[10246] =
+        WHITE;
+      
+        sram_mem[10247] =
+        NUMBER(3);
+      
+        sram_mem[10248] =
+        WHITE;
+      
+        sram_mem[10249] =
+        WHITE;
+      
+        sram_mem[10250] =
+        NUMBER(1);
+      
+        sram_mem[10251] =
+        WHITE;
+      
+    
+      
+        sram_mem[10252] =
+        WHITE;
+      
+        sram_mem[10253] =
+        WHITE;
+      
+        sram_mem[10254] =
+        WHITE;
+      
+        sram_mem[10255] =
+        WHITE;
+      
+        sram_mem[10256] =
+        WHITE;
+      
+        sram_mem[10257] =
+        WHITE;
+      
+        sram_mem[10258] =
+        WHITE;
+      
+        sram_mem[10259] =
+        WHITE;
+      
+        sram_mem[10260] =
+        WHITE;
+      
+        sram_mem[10261] =
+        WHITE;
+      
+        sram_mem[10262] =
+        WHITE;
+      
+        sram_mem[10263] =
+        WHITE;
+      
+    
+      
+        sram_mem[10264] =
+        WHITE;
+      
+        sram_mem[10265] =
+        WHITE;
+      
+        sram_mem[10266] =
+        WHITE;
+      
+        sram_mem[10267] =
+        WHITE;
+      
+        sram_mem[10268] =
+        WHITE;
+      
+        sram_mem[10269] =
+        WHITE;
+      
+        sram_mem[10270] =
+        NUMBER(1);
+      
+        sram_mem[10271] =
+        WHITE;
+      
+        sram_mem[10272] =
+        WHITE;
+      
+        sram_mem[10273] =
+        NUMBER(2);
+      
+        sram_mem[10274] =
+        WHITE;
+      
+        sram_mem[10275] =
+        WHITE;
+      
+    
+      
+        sram_mem[10276] =
+        WHITE;
+      
+        sram_mem[10277] =
+        WHITE;
+      
+        sram_mem[10278] =
+        WHITE;
+      
+        sram_mem[10279] =
+        WHITE;
+      
+        sram_mem[10280] =
+        WHITE;
+      
+        sram_mem[10281] =
+        NUMBER(3);
+      
+        sram_mem[10282] =
+        WHITE;
+      
+        sram_mem[10283] =
+        WHITE;
+      
+        sram_mem[10284] =
+        NUMBER(2);
+      
+        sram_mem[10285] =
+        WHITE;
+      
+        sram_mem[10286] =
+        WHITE;
+      
+        sram_mem[10287] =
+        WHITE;
+      
+    
+      
+        sram_mem[10288] =
+        NUMBER(2);
+      
+        sram_mem[10289] =
+        WHITE;
+      
+        sram_mem[10290] =
+        WHITE;
+      
+        sram_mem[10291] =
+        WHITE;
+      
+        sram_mem[10292] =
+        WHITE;
+      
+        sram_mem[10293] =
+        WHITE;
+      
+        sram_mem[10294] =
+        WHITE;
+      
+        sram_mem[10295] =
+        WHITE;
+      
+        sram_mem[10296] =
+        WHITE;
+      
+        sram_mem[10297] =
+        WHITE;
+      
+        sram_mem[10298] =
+        NUMBER(3);
+      
+        sram_mem[10299] =
+        WHITE;
+      
+    
+      
+        sram_mem[10300] =
+        WHITE;
+      
+        sram_mem[10301] =
+        WHITE;
+      
+        sram_mem[10302] =
+        NUMBER(3);
+      
+        sram_mem[10303] =
+        WHITE;
+      
+        sram_mem[10304] =
+        WHITE;
+      
+        sram_mem[10305] =
+        WHITE;
+      
+        sram_mem[10306] =
+        WHITE;
+      
+        sram_mem[10307] =
+        WHITE;
+      
+        sram_mem[10308] =
+        WHITE;
+      
+        sram_mem[10309] =
+        WHITE;
+      
+        sram_mem[10310] =
+        WHITE;
+      
+        sram_mem[10311] =
+        WHITE;
+      
+    
+      
+        sram_mem[10312] =
+        NUMBER(3);
+      
+        sram_mem[10313] =
+        WHITE;
+      
+        sram_mem[10314] =
+        WHITE;
+      
+        sram_mem[10315] =
+        WHITE;
+      
+        sram_mem[10316] =
+        WHITE;
+      
+        sram_mem[10317] =
+        NUMBER(3);
+      
+        sram_mem[10318] =
+        WHITE;
+      
+        sram_mem[10319] =
+        WHITE;
+      
+        sram_mem[10320] =
+        NUMBER(1);
+      
+        sram_mem[10321] =
+        WHITE;
+      
+        sram_mem[10322] =
+        NUMBER(3);
+      
+        sram_mem[10323] =
+        WHITE;
+      
+    
+      
+        sram_mem[10324] =
+        WHITE;
+      
+        sram_mem[10325] =
+        WHITE;
+      
+        sram_mem[10326] =
+        NUMBER(3);
+      
+        sram_mem[10327] =
+        WHITE;
+      
+        sram_mem[10328] =
+        WHITE;
+      
+        sram_mem[10329] =
+        WHITE;
+      
+        sram_mem[10330] =
+        WHITE;
+      
+        sram_mem[10331] =
+        WHITE;
+      
+        sram_mem[10332] =
+        WHITE;
+      
+        sram_mem[10333] =
+        WHITE;
+      
+        sram_mem[10334] =
+        WHITE;
+      
+        sram_mem[10335] =
+        WHITE;
+      
+    
+      
+        sram_mem[10336] =
+        WHITE;
+      
+        sram_mem[10337] =
+        WHITE;
+      
+        sram_mem[10338] =
+        WHITE;
+      
+        sram_mem[10339] =
+        WHITE;
+      
+        sram_mem[10340] =
+        WHITE;
+      
+        sram_mem[10341] =
+        NUMBER(2);
+      
+        sram_mem[10342] =
+        WHITE;
+      
+        sram_mem[10343] =
+        NUMBER(6);
+      
+        sram_mem[10344] =
+        WHITE;
+      
+        sram_mem[10345] =
+        WHITE;
+      
+        sram_mem[10346] =
+        WHITE;
+      
+        sram_mem[10347] =
+        WHITE;
+      
+    
+      
+        sram_mem[10348] =
+        WHITE;
+      
+        sram_mem[10349] =
+        WHITE;
+      
+        sram_mem[10350] =
+        WHITE;
+      
+        sram_mem[10351] =
+        WHITE;
+      
+        sram_mem[10352] =
+        WHITE;
+      
+        sram_mem[10353] =
+        WHITE;
+      
+        sram_mem[10354] =
+        WHITE;
+      
+        sram_mem[10355] =
+        WHITE;
+      
+        sram_mem[10356] =
+        WHITE;
+      
+        sram_mem[10357] =
+        WHITE;
+      
+        sram_mem[10358] =
+        WHITE;
+      
+        sram_mem[10359] =
+        WHITE;
+      
+    
+      
+        sram_mem[10360] =
+        NUMBER(5);
+      
+        sram_mem[10361] =
+        WHITE;
+      
+        sram_mem[10362] =
+        WHITE;
+      
+        sram_mem[10363] =
+        NUMBER(2);
+      
+        sram_mem[10364] =
+        WHITE;
+      
+        sram_mem[10365] =
+        WHITE;
+      
+        sram_mem[10366] =
+        NUMBER(1);
+      
+        sram_mem[10367] =
+        WHITE;
+      
+        sram_mem[10368] =
+        WHITE;
+      
+        sram_mem[10369] =
+        WHITE;
+      
+        sram_mem[10370] =
+        WHITE;
+      
+        sram_mem[10371] =
+        WHITE;
+      
+    
+      
+        sram_mem[10372] =
+        WHITE;
+      
+        sram_mem[10373] =
+        WHITE;
+      
+        sram_mem[10374] =
+        WHITE;
+      
+        sram_mem[10375] =
+        WHITE;
+      
+        sram_mem[10376] =
+        WHITE;
+      
+        sram_mem[10377] =
+        WHITE;
+      
+        sram_mem[10378] =
+        WHITE;
+      
+        sram_mem[10379] =
+        WHITE;
+      
+        sram_mem[10380] =
+        WHITE;
+      
+        sram_mem[10381] =
+        WHITE;
+      
+        sram_mem[10382] =
+        WHITE;
+      
+        sram_mem[10383] =
+        WHITE;
+      
+    
+  
 }
 
 int main() {
