@@ -14,8 +14,6 @@
 #define OUTSIDE 8
 #define NUMBER(n) ((n) + 8)
 
-const char *magic_save = "SRAM_Vnnn";
-
 void set_tile(int charblock, int r, int c, int tile) {
   // First write to the 8x8 maps
   if      (charblock == 24) se_mem[22][r * 32 + c] = tile;
@@ -75,6 +73,8 @@ bool checkNumbers(int NUR_ROWS, int NUR_COLS, int puzzle[NUR_ROWS][NUR_COLS]) {
   return false;
 }
 
+bool small_tiles = false;
+
 int playPuzzle(int NUR_ROWS, int NUR_COLS, int puzzle[NUR_ROWS][NUR_COLS], int puzzle_index) {
 
   int cursor_r = 0;
@@ -122,8 +122,12 @@ int playPuzzle(int NUR_ROWS, int NUR_COLS, int puzzle[NUR_ROWS][NUR_COLS], int p
   REG_BG0CNT = BG_CBB(0) | BG_SBB(24) | BG_4BPP | BG_REG_64x64;
   // set up BG1 for a 4bpp 64x64t map, using charblock 0 and screenblocks 28-31 (puzzle squares)
   REG_BG1CNT = BG_CBB(0) | BG_SBB(28) | BG_4BPP | BG_REG_64x64;
-  REG_DISPCNT = DCNT_MODE0 | DCNT_BG0 | DCNT_BG1;
-  bool small_tiles = false;
+  if (small_tiles) {
+    REG_DISPCNT = DCNT_MODE0 | DCNT_BG2 | DCNT_BG3;
+  }
+  else {
+    REG_DISPCNT = DCNT_MODE0 | DCNT_BG0 | DCNT_BG1;
+  }
 
   int max_horiz_offset_16 = NUR_COLS * 16 - 240;
   if (max_horiz_offset_16 < 0) max_horiz_offset_16 = 0;
@@ -300,7 +304,6 @@ int playPuzzle(int NUR_ROWS, int NUR_COLS, int puzzle[NUR_ROWS][NUR_COLS], int p
 //   puzzle 1, 1 byte per square
 // ...
 void load_to_sram() {
-  // TODO: load a bunch of puzzles
   <%
   puzzles = Dir["puzzles/*.txt"].sort_by { |f| File.basename(f).to_i }.map do |f|
     File.read(f).split("\n").select { |ln| ln =~ /\S/ }
