@@ -65,7 +65,63 @@ bool checkPools(int NUR_ROWS, int NUR_COLS, int puzzle[NUR_ROWS][NUR_COLS]) {
 
 // Returns true if all the black squares are connected.
 bool checkBlack(int NUR_ROWS, int NUR_COLS, int puzzle[NUR_ROWS][NUR_COLS]) {
-  return false;
+  int working[NUR_ROWS][NUR_COLS];
+  // First, find all the black squares, and remember an arbitrary black square
+  int some_r = -1;
+  int some_c = -1;
+  for (int r = 0; r < NUR_ROWS; r++) {
+    for (int c = 0; c < NUR_COLS; c++) {
+      // we first mark all black squares as 1, non-black as 0
+      if (puzzle[r][c] == BLACK) {
+        working[r][c] = 1;
+        some_r = r;
+        some_c = c;
+      }
+      else {
+        working[r][c] = 0;
+      }
+    }
+  }
+  if (some_r == -1) return true;
+  // Now, traverse the black squares BFS with a queue, starting from that square
+  int qstart = 0;
+  int qend = 1;
+  int q[NUR_ROWS * NUR_COLS];
+  q[0] = (some_r << 5) + some_c;
+  while (qstart != qend) {
+    // pop an element off the queue, mark it as 2 in working, enqueue its neighbors
+    some_r = q[qstart] >> 5;
+    some_c = q[qstart] && 31;
+    qstart++;
+    working[some_r][some_c] = 2;
+    // add square above
+    if (some_r != 0 && working[some_r - 1][some_c] == 1) {
+      q[qend] = ((some_r - 1) << 5) + some_c;
+      qend++;
+    }
+    // add square below
+    if (some_r != NUR_ROWS - 1 && working[some_r + 1][some_c] == 1) {
+      q[qend] = ((some_r + 1) << 5) + some_c;
+      qend++;
+    }
+    // add square to the left
+    if (some_c != 0 && working[some_r][some_c - 1] == 1) {
+      q[qend] = (some_r << 5) + (some_c - 1);
+      qend++;
+    }
+    // add square to the right
+    if (some_c != NUR_COLS - 1 && working[some_r][some_c + 1] == 1) {
+      q[qend] = (some_r << 5) + (some_c + 1);
+      qend++;
+    }
+  }
+  // Finally, check that no square in working is 1 (black but not reached)
+  for (int r = 0; r < NUR_ROWS; r++) {
+    for (int c = 0; c < NUR_COLS; c++) {
+      if (working[r][c] == 1) return false;
+    }
+  }
+  return true;
 }
 
 // Returns true if each number n connects to n-1 dots, and no other numbers.
